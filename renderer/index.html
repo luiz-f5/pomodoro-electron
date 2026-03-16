@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+     <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
+     <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Pomodoro Timer</title>
+  </head>
+  <body class="pomodoro">
+      <div class="window">
+            <button id="btn-min">─</button>
+            <button id="btn-max">□</button>
+            <button id="btn-close">✕</button>
+      </div>
+      <div id="content">
+            <div id="alerta-bateria">
+            </div>
+            <h1 id="timer">25:00</h1>
+            <h2 id="foco"></h2>
+            <p id="mensagem"></p>
+            <button id="btn-start">Iniciar Sessão de Foco</button>
+            <button id="btn-stop">Parar</button>
+            <button id="btn-cancel" disabled>Cancelar</button>
+      </div>
+      <div id="options">
+          <label for="minutes">Escolher valor do timer</label>
+          <select id="minutes" name="minutes">
+                <option value="25:00:5:00">25:00/5:00</option>
+                <option value="50:00:10:00">50:00/10:00</option>
+          </select>
+          <label for="times">Numero de vezes do timer</label>
+          <select id="times" name="times" value="1">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+          </select>
+          <label for="theme">Escolha o tema</label>
+          <select id="theme" name="theme">
+                <option value="pomodoro">Pomodoro</option>
+                <option value="dark">Dark</option>
+                <option value="ocean">Ocean</option>
+                <option value="forest">Forest</option>
+                <option value="sunset">Sunset</option>
+                <option value="light">Light</option>
+                <option value="neon">Neon</option>
+                <option value="lavender">Lavender</option>
+                <option value="midnight">Midnight</option>
+                <option value="coffee">Coffee</option>
+                <option value="cyber">Cyber</option>
+                <option value="ice">Ice</option>
+                <option value="solar">Solar</option>
+          </select>
+      </div>
+    <script type="module" src="renderer.js"></script>
+  </body>
+</html>

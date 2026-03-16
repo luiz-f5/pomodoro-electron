@@ -1,0 +1,111 @@
+{
+  "name": "pomodoro-electron",
+  "version": "1.0.0",
+  "description": "Um simples app de Pomodoro funcional feito com Electron",
+  "author": {
+    "name": "Luiz Henrique",
+    "email": "luiz@example.com"
+  },
+  "homepage": "https://github.com/luizhenrique/pomodoro-electron",
+  "license": "MIT",
+  "private": true,
+
+  "main": "main/main.js",
+
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron --inspect=5858 .",
+
+    "build": "electron-builder",
+    "build:linux": "electron-builder --linux",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+
+    "release": "electron-builder --publish always"
+  },
+
+  "devDependencies": {
+    "electron": "40.8.0",
+    "electron-builder": "26.8.1"
+  },
+
+  "build": {
+    "appId": "com.pomodoro.app",
+    "productName": "Pomodoro-Electron",
+
+    "asar": true,
+    "compression": "maximum",
+
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+
+    "files": [
+      "main/**/*",
+      "renderer/**/*",
+      "index.html",
+      "package.json"
+    ],
+
+    "extraResources": [
+      {
+        "from": "assets/",
+        "to": "assets",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false
+    },
+
+    "linux": {
+      "icon": "assets",
+      "category": "Utility",
+      "maintainer": "Luiz Henrique <luiz@example.com>",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
+  }
+}
