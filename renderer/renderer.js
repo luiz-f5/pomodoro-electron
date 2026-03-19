@@ -7,6 +7,7 @@ let currentSec = 59
 let modo = "focus"
 let abortProcess = false
 let pausado = false
+
 const btnClose = document.getElementById('btn-close')
 const btnMin = document.getElementById('btn-min')
 const btnMax = document.getElementById('btn-max')

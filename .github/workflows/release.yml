@@ -1,36 +1,48 @@
-name: Build & Release Electron App
+name: Build and Release
 
 on:
   push:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
-  build:
+  release:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "npm"
+          node-version: 24
+          cache: npm
+      - run: npm install
 
-      - name: Install dependencies
-        run: npm install
+      - if: matrix.os == 'macos-latest'
+        run: |
+          npm run build:mac:x64
+          npx electron-builder --mac --x64 --publish always
 
-      - name: Build Electron
-        run: npx electron-builder --publish never
+          npm run build:mac:arm64
+          npx electron-builder --mac --arm64 --publish always
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-${{ matrix.os }}
-          path: dist/*
+          npm run build:mac:universal
+          npx electron-builder --mac --universal --publish always
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - if: matrix.os == 'windows-latest'
+        run: npx electron-builder --win --publish always
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - if: matrix.os == 'ubuntu-latest'
+        run: npx electron-builder --linux --publish always
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

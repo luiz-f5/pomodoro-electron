@@ -9,7 +9,6 @@
   "homepage": "https://github.com/luizhenrique/pomodoro-electron",
   "license": "MIT",
   "private": true,
-
   "main": "main/main.js",
 
   "scripts": {
@@ -17,16 +16,29 @@
     "dev": "electron --inspect=5858 .",
 
     "build": "electron-builder",
-    "build:linux": "electron-builder --linux",
+
+    "build:mac:x64": "electron-builder --mac dmg --x64 --publish never",
+    "build:mac:arm64": "electron-builder --mac dmg --arm64 --publish never",
+    "build:mac:universal": "electron-builder --mac dmg --universal --publish never",
+
+    "build:mac:all": "npm run build:mac:x64 && npm run build:mac:arm64 && npm run build:mac:universal",
+
     "build:win": "electron-builder --win",
-    "build:mac": "electron-builder --mac",
+
+    "build:linux": "electron-builder --linux",
 
     "release": "electron-builder --publish always"
   },
 
   "devDependencies": {
+    "@eslint/css": "^1.0.0",
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^1.1.0",
+    "@eslint/markdown": "^7.5.1",
     "electron": "40.8.0",
-    "electron-builder": "26.8.1"
+    "electron-builder": "26.8.1",
+    "eslint": "^10.0.3",
+    "globals": "^17.4.0"
   },
 
   "build": {
@@ -34,7 +46,15 @@
     "productName": "Pomodoro-Electron",
 
     "asar": true,
-    "compression": "maximum",
+    "compression": "store",
+
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
 
     "directories": {
       "output": "dist",
@@ -52,32 +72,19 @@
       {
         "from": "assets/",
         "to": "assets",
-        "filter": [
-          "**/*"
-        ]
+        "filter": ["**/*"]
       }
     ],
 
     "mac": {
       "category": "public.app-category.productivity",
-      "target": [
-        "dmg",
-        "zip"
-      ]
+      "target": ["dmg"]
     },
 
     "dmg": {
       "contents": [
-        {
-          "x": 130,
-          "y": 220
-        },
-        {
-          "x": 410,
-          "y": 220,
-          "type": "link",
-          "path": "/Applications"
-        }
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
       ]
     },
 
@@ -85,9 +92,7 @@
       "target": [
         {
           "target": "nsis",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
         }
       ]
     },
@@ -102,10 +107,7 @@
       "icon": "assets",
       "category": "Utility",
       "maintainer": "Luiz Henrique <luiz@example.com>",
-      "target": [
-        "AppImage",
-        "deb"
-      ]
+      "target": ["AppImage", "deb"]
     }
   }
 }
