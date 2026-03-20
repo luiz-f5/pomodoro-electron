@@ -8,3 +8,12 @@ fechar : () => ipcRenderer.send('fechar-janela'),
     pararSessao : () => ipcRenderer.invoke('parar-foco'),
     onMudancaEnergia : (callback) => ipcRenderer.on('alerta-energia', callback)
 })
+
+contextBridge.exposeInMainWorld('notifyAPI', {
+    send: (title, body) => ipcRenderer.send('show-notification', { title, body }),
+    playSound: () => {
+      const audio = new Audio('../assets/sound/notification.wav')
+      audio.play()
+    }
+  })
+  
