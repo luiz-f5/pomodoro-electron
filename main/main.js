@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, powerMonitor, powerSaveBlocker } = require('electron');
+const { app, BrowserWindow, ipcMain, powerMonitor, powerSaveBlocker, Notification } = require('electron');
 const path = require('path')
 
 let mainWindow;
@@ -81,3 +81,7 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+
+ipcMain.on('show-notification', (event, { title, body }) => {
+    new Notification({ title, body }).show()
+  })

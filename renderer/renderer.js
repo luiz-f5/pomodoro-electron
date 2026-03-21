@@ -132,6 +132,8 @@ btnStart.addEventListener('click', async () => {
             foco.innerText = "Foco ativo"
             msg.innerText = "Foco iniciado!"
 
+            window.notifyAPI.send("Sessão de Foco", "Foco iniciado")
+            window.notifyAPI.playSound()
             const ok = await runTimer()
             if(!ok) return
 
@@ -144,6 +146,9 @@ btnStart.addEventListener('click', async () => {
 
             foco.innerText = "Descanso"
             msg.innerText = "Descanso iniciado!"
+            
+            window.notifyAPI.send("Descanso", "Descanso iniciado")
+            window.notifyAPI.playSound()
 
             const ok = await runTimer()
             if(!ok) return
@@ -156,6 +161,9 @@ btnStart.addEventListener('click', async () => {
 
     msg.innerText = "Processo completo!"
     foco.innerText = "Finalizado"
+
+    window.notifyAPI.send("Pomodoro Finalizado", "Todos os ciclos foram concluídos!")
+    window.notifyAPI.playSound()
 
     btnStart.disabled = false
     btnStop.disabled = true
