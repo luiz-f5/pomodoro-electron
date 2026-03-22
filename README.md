@@ -21,11 +21,11 @@ Este projeto roda como uma **aplicação desktop** utilizando o framework **Elec
 
 ## 🚀 Tecnologias Utilizadas
 
-- Electron  
-- JavaScript  
-- HTML  
-- CSS  
-- Node.js  
+- Electron
+- JavaScript
+- HTML
+- CSS
+- Node.js
 
 ---
 
@@ -49,12 +49,12 @@ pomodoro-electron
 
 ## ⚙️ Funcionalidades
 
-- ✅ Iniciar Pomodoro  
-- ⏸️ Pausar temporizador  
-- ❌ Cancelar ciclo  
-- 🔄 Alternar entre tempo de trabalho e descanso  
-- 🖥️ Interface simples e intuitiva  
-- 📦 Aplicação desktop  
+- ✅ Iniciar Pomodoro
+- ⏸️ Pausar temporizador
+- ❌ Cancelar ciclo
+- 🔄 Alternar entre tempo de trabalho e descanso
+- 🖥️ Interface simples e intuitiva
+- 📦 Aplicação desktop
 
 ---
 
@@ -110,11 +110,11 @@ A técnica Pomodoro foi criada por **Francesco Cirillo** e é amplamente utiliza
 
 ## 🎨 Melhorias Futuras
 
-- 🔔 Notificações ao terminar um ciclo  
-- 🎵 Sons de alerta  
-- 📊 Estatísticas de produtividade  
-- 🌙 Modo escuro  
-- 🎨 Temas personalizáveis  
+- 🔔 Notificações ao terminar um ciclo
+- 🎵 Sons de alerta
+- 📊 Estatísticas de produtividade
+- 🌙 Modo escuro
+- 🎨 Temas personalizáveis
 
 ---
 
