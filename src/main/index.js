@@ -1,10 +1,22 @@
-import { app, BrowserWindow, ipcMain, powerMonitor, powerSaveBlocker, Notification } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  powerMonitor,
+  powerSaveBlocker,
+  Notification,
+  Tray,
+  Menu,
+  nativeImage
+} from 'electron'
+
 import { join } from 'path'
 import { spawn } from 'child_process'
 import icon from '../../resources/icon.png?asset'
 
 let mainWindow
 let bloqueadorFocoId = null
+let tray = null
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -15,7 +27,7 @@ function createWindow() {
     frame: false,
     transparent: true,
     resizable: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    icon: nativeImage.createFromPath(icon),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       nodeIntegration: false,
@@ -28,6 +40,30 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow()
+
+  tray = new Tray(nativeImage.createFromPath(icon))
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Minimizar',
+      type: 'radio',
+      click: () => mainWindow.minimize()
+    },
+    {
+      label: 'Maximizar',
+      type: 'radio',
+      click: () => {
+        if (mainWindow) {
+          if (mainWindow.isMaximized()) {
+            mainWindow.unmaximize()
+          } else {
+            mainWindow.maximize()
+          }
+        }
+      }
+    },
+    { label: 'Fechar', type: 'radio', click: () => mainWindow.close() }
+  ])
+  tray.setContextMenu(contextMenu)
 
   powerMonitor.on('on-battery', () => {
     mainWindow.webContents.send('alerta-energia', 'bateria')
