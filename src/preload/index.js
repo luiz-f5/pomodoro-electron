@@ -11,17 +11,23 @@ const apiPomodoro = {
 
 const apiNotify = {
   send: (title, body) => ipcRenderer.send('show-notification', { title, body }),
-  playSound: () => ipcRenderer.send('play-sound')
+  playSound: (url) => ipcRenderer.send('play-sound', url)
+}
+
+const apiMenu = {
+  send: (comando) => ipcRenderer.send('menu-comando', comando)
 }
 
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('widgetAPI', apiPomodoro)
     contextBridge.exposeInMainWorld('notifyAPI', apiNotify)
+    contextBridge.exposeInMainWorld('menuAPI', apiMenu)
   } catch (error) {
     console.error(error)
   }
 } else {
   window.widgetAPI = apiPomodoro
   window.notifyAPI = apiNotify
+  window.menuAPI = apiMenu
 }

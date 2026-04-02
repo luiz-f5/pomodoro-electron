@@ -7,18 +7,44 @@ import {
   Notification,
   Tray,
   Menu,
-  nativeImage
+  nativeImage,
+  shell
 } from 'electron'
 
 import { join } from 'path'
 import { spawn } from 'child_process'
 import icon from '../../resources/icon.png?asset'
+import dotenv from 'dotenv'
+dotenv.config()
 
 let mainWindow
+let secondaryWindow
 let bloqueadorFocoId = null
 let tray = null
 
-function createWindow() {
+function createSettingsWindow() {
+  secondaryWindow = new BrowserWindow({
+    parent: mainWindow,
+    show: false,
+    width: 600,
+    height: 600,
+    frame: true,
+    transparent: true,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  })
+
+  secondaryWindow.loadFile(join(__dirname, '../renderer/settings.html'))
+
+  secondaryWindow.once('ready-to-show', () => {
+    secondaryWindow.show()
+  })
+}
+
+function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
@@ -35,22 +61,38 @@ function createWindow() {
     }
   })
 
+  const menu = Menu.buildFromTemplate([
+    { label: 'Resetar app', role: 'reload' },
+    { label: 'Forçar resear app', role: 'forceReload' },
+    { label: 'Debug', role: 'toggleDevTools' },
+    { label: 'Aumentar zoom', role: 'zoomIn' },
+    { label: 'Diminuir zoom', role: 'zoomOut' },
+    { label: 'Tamanho original', role: 'resetZoom' },
+    { label: 'Tela cheia', role: 'togglefullscreen' }
+  ])
+
+  mainWindow.webContents.on('context-menu', () => {
+    menu.popup()
+  })
+
   mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
 }
 
+app.commandLine.appendSwitch('log-level', '3')
+
 app.whenReady().then(() => {
-  createWindow()
+  createMainWindow()
 
   tray = new Tray(nativeImage.createFromPath(icon))
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Minimizar',
-      type: 'radio',
+      type: 'normal',
       click: () => mainWindow.minimize()
     },
     {
       label: 'Maximizar',
-      type: 'radio',
+      type: 'normal',
       click: () => {
         if (mainWindow) {
           if (mainWindow.isMaximized()) {
@@ -61,7 +103,7 @@ app.whenReady().then(() => {
         }
       }
     },
-    { label: 'Fechar', type: 'radio', click: () => mainWindow.close() }
+    { label: 'Fechar', type: 'normal', click: () => mainWindow.close() }
   ])
   tray.setContextMenu(contextMenu)
 
@@ -74,7 +116,7 @@ app.whenReady().then(() => {
   })
 
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
   })
 })
 
@@ -93,6 +135,42 @@ ipcMain.on('maximizar-janela', () => {
     } else {
       mainWindow.maximize()
     }
+  }
+})
+
+ipcMain.on('menu-comando', (event, comando) => {
+  if (!mainWindow) return
+
+  switch (comando) {
+    case 'reload':
+      mainWindow.reload()
+      break
+    case 'force-reload':
+      mainWindow.webContents.reloadIgnoringCache()
+      break
+    case 'debug':
+      mainWindow.webContents.toggleDevTools()
+      break
+    case 'zoom-in':
+      mainWindow.webContents.setZoomLevel(mainWindow.webContents.getZoomLevel() + 1)
+      break
+    case 'zoom-out':
+      mainWindow.webContents.setZoomLevel(mainWindow.webContents.getZoomLevel() - 1)
+      break
+    case 'zoom-reset':
+      mainWindow.webContents.setZoomLevel(0)
+      break
+    case 'fullscreen':
+      mainWindow.setFullScreen(!mainWindow.isFullScreen())
+      break
+    case 'quit':
+      app.quit()
+      break
+    case 'help':
+      shell.openExternal('https://electronjs.org')
+      break
+    case 'secondary':
+      createSettingsWindow()
   }
 })
 
@@ -117,7 +195,7 @@ ipcMain.on('show-notification', (event, { title, body }) => {
   new Notification({ title, body }).show()
 })
 
-ipcMain.on('play-sound', () => {
+ipcMain.on('play-sound', (event, url) => {
   if (process.platform === 'linux') {
     const canberra = spawn('canberra-gtk-play', ['--id=message', '--description=Pomodoro'])
     canberra.on('error', () => {
@@ -126,6 +204,12 @@ ipcMain.on('play-sound', () => {
       })
     })
   }
+
+  const urlString = fetch(url)
+    .then((audio) => audio.toString())
+    .catch(() => console.log('Error'))
+
+  return urlString.href
 })
 
 app.on('window-all-closed', () => {

@@ -3,7 +3,6 @@ import { TimerProvider, useTimer } from './context/TimerContext'
 import Window from './components/Window'
 import Timer from './components/Timer'
 import Options from './components/Options'
-import Config from './components/Config'
 
 function AppInner() {
   const { theme } = useTimer()
@@ -17,7 +16,6 @@ function AppInner() {
       <Window />
       <Timer />
       <Options />
-      <Config />
     </div>
   )
 }
