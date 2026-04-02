@@ -1,55 +1,259 @@
-@import './base.css';
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-.select-row {
+:root {
+  --bg: #0e0e0f;
+  --surface: #161618;
+  --border: #2a2a2e;
+  --border-hi: #3e3e44;
+  --accent: #c8f060;
+  --accent-dim: #8aaa38;
+  --text: #e8e8e8;
+  --text-dim: #7a7a82;
+  --text-faint: #3e3e46;
+  --radius: 10px;
+  --font-mono: 'DM Mono', monospace;
+  --font-sans: 'DM Sans', sans-serif;
+  --track-h: 52px;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── window drag region ──────────────────────────── */
+.settings-titlebar {
+  -webkit-app-region: drag;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.settings-titlebar span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  -webkit-app-region: no-drag;
+  user-select: none;
+}
+
+/* ── root layout ─────────────────────────────────── */
+.config {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-.select-row label {
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  text-align: center;
-}
-
-.select-row select {
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
   width: 100%;
-  padding: 8px 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface-alt);
-  color: var(--color-text);
-  font-size: 0.84rem;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 28px;
+  height: calc(600px - 38px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.config::-webkit-scrollbar {
+  display: none;
+}
+
+.config-inner {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── section label ───────────────────────────────── */
+.config-section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+  margin-top: 28px;
+}
+
+.config-section-label:first-child {
+  margin-top: 0;
+}
+
+/* ── select-row ──────────────────────────────────── */
+.select-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--track-h);
+  padding: 0 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
   transition:
-    border-color var(--transition-fast),
-    background-color var(--transition-slow);
-  text-align: center;
+    border-color 120ms ease,
+    background 120ms ease;
+  cursor: pointer;
+  position: relative;
 }
 
-.select-row select:focus {
+.select-row:hover {
+  border-color: var(--border-hi);
+  background: #1c1c1f;
+}
+
+.select-row:focus-within {
+  border-color: var(--accent-dim);
   outline: none;
-  border-color: var(--color-accent);
 }
 
-.select-row select:hover:not(:disabled) {
-  border-color: rgba(255, 255, 255, 0.2);
+.select-row:last-child {
+  margin-bottom: 0;
 }
 
-.select-row select:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+/* label side */
+.select-row__label {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: 0.01em;
+  user-select: none;
+  pointer-events: none;
 }
 
-.select-row select option {
-  background: #1a1a1a;
-  color: #f5f5f5;
+.select-row__hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 1px;
+  pointer-events: none;
+}
+
+.select-row__left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* value / select side */
+.select-row__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.select-row__value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+/* ── native select (hidden, covers the row) ─────── */
+.select-row select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 14px;
+  border: none;
+  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+  z-index: 1;
+}
+
+/* chevron icon */
+.select-row__chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--text-dim);
+  pointer-events: none;
+  flex-shrink: 0;
+  transition: transform 120ms ease;
+}
+
+.select-row:focus-within .select-row__chevron {
+  color: var(--accent-dim);
+}
+
+/* ── accent line on active row ───────────────────── */
+.select-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 60%;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+  transition: transform 120ms ease;
+}
+
+.select-row:focus-within::before {
+  transform: translateY(-50%) scaleY(1);
+}
+
+/* ── divider ─────────────────────────────────────── */
+.config-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 24px 0;
+}
+
+/* ── footer strip ────────────────────────────────── */
+.config-footer {
+  margin-top: auto;
+  padding-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.config-footer__status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+}
+
+.config-footer__status.active {
+  color: var(--accent-dim);
+}
+
+/* ── scrollbar ───────────────────────────────────── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f4f4f2;
+    --surface: #ffffff;
+    --border: #ddddd8;
+    --border-hi: #c0c0ba;
+    --accent: #4a8a00;
+    --accent-dim: #3a6e00;
+    --text: #1a1a1a;
+    --text-dim: #8a8a88;
+    --text-faint: #c0c0be;
+  }
 }
