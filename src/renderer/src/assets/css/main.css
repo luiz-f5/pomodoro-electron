@@ -23,16 +23,6 @@
   flex-shrink: 0;
 }
 
-.window-title {
-  font-family: var(--font-display);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
 .window-controls {
   display: flex;
   gap: 6px;
@@ -227,6 +217,61 @@
   transition: var(--transition-theme);
 }
 
+.menu-container {
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(20, 20, 20, 0.8); /* Fundo sutil para "pegar" o clique */
+  border-radius: 6px;
+  -webkit-app-region: drag; /* Permite arrastar pela barra */
+}
+
+.window-settings {
+  -webkit-app-region: no-drag !important;
+  pointer-events: auto !important;
+  display: flex;
+  align-items: center;
+}
+
+.btn-settings {
+  padding: 4px 10px;
+  font-size: 11px;
+  height: 24px;
+  min-width: 50px;
+
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid transparent; /* Borda invisível para não dar "pulo" no hover */
+  background: transparent;
+  color: var(--color-accent, #e0e0e0);
+
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  z-index: 999;
+}
+
+.btn-settings:hover {
+  background: rgba(255, 255, 255, 0.1); /* Hover sutil estilo VS Code */
+  color: #ffffff;
+}
+
+.btn-settings:active {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(0.95);
+}
+
+.btn-settings.danger:hover {
+  background: rgba(255, 70, 70, 0.3);
+  color: #ffcccc;
+}
+
 .btn-start {
   flex: 1 1 auto;
   min-width: 160px;
@@ -302,58 +347,4 @@
   flex-shrink: 0;
   animation: fadeIn 0.4s ease 0.1s both;
   transition: var(--transition-theme);
-}
-
-.select-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.select-row label {
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  text-align: center;
-}
-
-.select-row select {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface-alt);
-  color: var(--color-text);
-  font-size: 0.84rem;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 28px;
-  transition:
-    border-color var(--transition-fast),
-    background-color var(--transition-slow);
-  text-align: center;
-}
-
-.select-row select:focus {
-  outline: none;
-  border-color: var(--color-accent);
-}
-
-.select-row select:hover:not(:disabled) {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.select-row select:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.select-row select option {
-  background: #1a1a1a;
-  color: #f5f5f5;
 }
