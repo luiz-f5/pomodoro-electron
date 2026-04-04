@@ -6,7 +6,10 @@ import Themes from './Selects/Themes'
 import WindowControls from './WindowControls'
 
 function Config() {
-  const { theme, setTheme, minutes, setMinutes, loops, setLoops, running } = useTimer()
+  const { theme: ctxTheme, setTheme, minutes: ctxMinutes, setMinutes, loops: ctxLoops, setLoops, running } = useTimer()
+  const [localTheme, setLocalTheme] = useState(ctxTheme)
+  const [localMinutes, setLocalMinutes] = useState(ctxMinutes)
+  const [localLoops, setLocalLoops] = useState(ctxLoops)
   const [apiKey, setApiKey] = useState('')
   const [debugMode, setDebugMode] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -15,20 +18,23 @@ function Config() {
     window.settingsAPI?.get().then((settings) => {
       if (settings.freesoundApiKey) setApiKey(settings.freesoundApiKey)
       if (settings.debugMode) setDebugMode(settings.debugMode)
-      if (settings.theme) setTheme(settings.theme)
-      if (settings.minutes) setMinutes(settings.minutes)
-      if (settings.loops) setLoops(settings.loops)
+      if (settings.theme) setLocalTheme(settings.theme)
+      if (settings.minutes) setLocalMinutes(settings.minutes)
+      if (settings.loops) setLocalLoops(Number(settings.loops))
     })
-  }, [setTheme, setMinutes, setLoops])
+  }, [])
 
   const handleSave = () => {
     const newSettings = {
       freesoundApiKey: apiKey,
       debugMode,
-      theme,
-      minutes,
-      loops
+      theme: localTheme,
+      minutes: localMinutes,
+      loops: localLoops
     }
+    setTheme(localTheme)
+    setMinutes(localMinutes)
+    setLoops(localLoops)
     window.settingsAPI?.set(newSettings)
     window.themeAPI?.sendSettings(newSettings)
     setSaved(true)
@@ -48,8 +54,8 @@ function Config() {
           <section className="settings-config__section">
             <span className="settings-config__section-label">Timer</span>
             <div className="settings-config__group">
-              <Minutes value={minutes} onChange={setMinutes} disabled={running} />
-              <Times value={String(loops)} onChange={(v) => setLoops(Number(v))} disabled={running} />
+              <Minutes value={localMinutes} onChange={setLocalMinutes} disabled={running} />
+              <Times value={String(localLoops)} onChange={(v) => setLocalLoops(Number(v))} disabled={running} />
             </div>
             {running && (
               <p className="settings-config__warning">
@@ -61,7 +67,7 @@ function Config() {
           <section className="settings-config__section">
             <span className="settings-config__section-label">Aparência</span>
             <div className="settings-config__group">
-              <Themes theme={theme} setTheme={setTheme} />
+              <Themes theme={localTheme} setTheme={setLocalTheme} />
             </div>
           </section>
 

@@ -338,7 +338,8 @@ ipcMain.handle('get-custom-sound', () => customSoundPath)
 
 // IPC handler para obter token FreeSound
 ipcMain.handle('get-freesound-token', () => {
-  return freesoundToken
+  const settings = loadSettings()
+  return settings.freesoundApiKey || freesoundToken
 })
 
 app.on('window-all-closed', () => {

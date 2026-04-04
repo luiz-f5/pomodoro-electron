@@ -40,22 +40,28 @@ export function useSound() {
   const cache = useRef({})
   const current = useRef(null) // áudio principal em reprodução
 
-  useEffect(() => {
-    async function preload() {
-      const token = await window.configAPI?.getFreesoundToken()
-      if (!token) return
-
-      for (const [event, id] of Object.entries(SOUND_IDS)) {
-        try {
-          const url = await fetchPreviewUrl(id, token)
-          cache.current[event] = new Audio(url)
-        } catch (err) {
-          console.warn(`useSound: falha ao carregar ${event} (id ${id}):`, err.message)
-        }
+  async function preload(token) {
+    if (!token) return
+    for (const [event, id] of Object.entries(SOUND_IDS)) {
+      try {
+        const url = await fetchPreviewUrl(id, token)
+        cache.current[event] = new Audio(url)
+      } catch (err) {
+        console.warn(`useSound: falha ao carregar ${event} (id ${id}):`, err.message)
       }
     }
+  }
 
-    preload()
+  useEffect(() => {
+    window.configAPI?.getFreesoundToken().then((token) => preload(token))
+  }, [])
+
+  useEffect(() => {
+    if (!window.themeAPI?.onSettings) return
+    const cleanup = window.themeAPI.onSettings((data) => {
+      if (data.freesoundApiKey) preload(data.freesoundApiKey)
+    })
+    return cleanup
   }, [])
 
   const play = useCallback((event) => {
