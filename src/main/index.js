@@ -243,10 +243,24 @@ ipcMain.on('show-notification', (event, { title, body }) => {
 
 let customSoundPath = null
 
-const FREESOUND_API_KEY = process.env.FREESOUND_API_KEY || 'COLOQUE_SUA_CHAVE_AQUI'
+const settingsDir = path.join(os.homedir(), '.config', 'pomodoro-electron')
+const settingsFile = path.join(settingsDir, 'settings.json')
+
+function loadSettings() {
+  try {
+    if (!fs.existsSync(settingsFile)) return {}
+    const raw = fs.readFileSync(settingsFile, 'utf-8')
+    return JSON.parse(raw)
+  } catch (err) {
+    console.error('Failed to load settings:', err.message)
+    return {}
+  }
+}
 
 async function loadCustomSound() {
-  
+  const settings = loadSettings()
+  const FREESOUND_API_KEY = settings.freesoundApiKey || null
+
   if (!FREESOUND_API_KEY) {
     console.log('Nenhuma API key definida, usando som padrão.')
     customSoundPath = null
@@ -261,7 +275,6 @@ async function loadCustomSound() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
     const data = await res.json()
-
     const previewUrl = data.previews['preview-hq-ogg']
 
     const tmpFile = path.join(os.tmpdir(), 'notif.ogg')
@@ -310,4 +323,23 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+function saveSettings(newSettings) {
+  try {
+    const current = loadSettings()
+    const merged = { ...current, ...newSettings }
+
+    if (!fs.existsSync(settingsDir)) fs.mkdirSync(settingsDir, { recursive: true })
+    fs.writeFileSync(settingsFile, JSON.stringify(merged, null, 2))
+    console.log('Settings saved:', settingsFile)
+  } catch (err) {
+    console.error('Failed to save settings:', err.message)
+  }
+}
+
+ipcMain.handle('get-settings', () => loadSettings())
+ipcMain.handle('set-settings', (event, newSettings) => {
+  saveSettings(newSettings)
+  return true
 })
