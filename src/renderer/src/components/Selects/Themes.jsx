@@ -17,14 +17,7 @@ const themeOptions = [
 ]
 
 function Themes({ theme, setTheme }) {
-  return (
-    <Dropdown
-      options={themeOptions}
-      label="Tema"
-      value={theme}
-      onChange={setTheme}
-    />
-  )
+  return <Dropdown options={themeOptions} label="Tema" value={theme} onChange={setTheme} />
 }
 
 export default Themes

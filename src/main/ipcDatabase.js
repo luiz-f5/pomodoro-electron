@@ -34,23 +34,56 @@ export function registerDatabaseHandlers() {
 
   // Session
   ipcMain.handle('db:session:create', wrap(createSession))
-  ipcMain.handle('db:session:update', wrap((id, data) => updateSession(id, data)))
-  ipcMain.handle('db:session:complete', wrap((id, completedLoops) => completeSession(id, completedLoops)))
-  ipcMain.handle('db:session:stop', wrap((id) => stopSession(id)))
-  ipcMain.handle('db:session:cancel', wrap((id) => cancelSession(id)))
-  ipcMain.handle('db:session:list', wrap((opts) => listSessions(opts)))
-  ipcMain.handle('db:session:delete', wrap((id) => deleteSession(id)))
+  ipcMain.handle(
+    'db:session:update',
+    wrap((id, data) => updateSession(id, data))
+  )
+  ipcMain.handle(
+    'db:session:complete',
+    wrap((id, completedLoops) => completeSession(id, completedLoops))
+  )
+  ipcMain.handle(
+    'db:session:stop',
+    wrap((id) => stopSession(id))
+  )
+  ipcMain.handle(
+    'db:session:cancel',
+    wrap((id) => cancelSession(id))
+  )
+  ipcMain.handle(
+    'db:session:list',
+    wrap((opts) => listSessions(opts))
+  )
+  ipcMain.handle(
+    'db:session:delete',
+    wrap((id) => deleteSession(id))
+  )
 
   // Timestamp
-  ipcMain.handle('db:timestamp:create', wrap((data) => createTimestamp(data)))
-  ipcMain.handle('db:timestamp:complete', wrap((id) => completeTimestamp(id)))
-  ipcMain.handle('db:timestamp:list', wrap((opts) => listTimestamps(opts)))
-  ipcMain.handle('db:timestamp:delete', wrap((id) => deleteTimestamp(id)))
+  ipcMain.handle(
+    'db:timestamp:create',
+    wrap((data) => createTimestamp(data))
+  )
+  ipcMain.handle(
+    'db:timestamp:complete',
+    wrap((id) => completeTimestamp(id))
+  )
+  ipcMain.handle(
+    'db:timestamp:list',
+    wrap((opts) => listTimestamps(opts))
+  )
+  ipcMain.handle(
+    'db:timestamp:delete',
+    wrap((id) => deleteTimestamp(id))
+  )
 
   // History
   ipcMain.handle('db:history:get', wrap(getHistoryFromDb))
 
   // Settings
   ipcMain.handle('db:settings:get', wrap(getDbSettings))
-  ipcMain.handle('db:settings:set', wrap((data) => setDbSettings(data)))
+  ipcMain.handle(
+    'db:settings:set',
+    wrap((data) => setDbSettings(data))
+  )
 }

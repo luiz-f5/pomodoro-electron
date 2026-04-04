@@ -143,11 +143,11 @@ Os artefatos são gerados na pasta `dist/`.
 
 ## Distribuição
 
-| Plataforma | Formatos |
-|------------|----------|
+| Plataforma | Formatos                                           |
+| ---------- | -------------------------------------------------- |
 | Windows    | NSIS installer (x64, arm64), Portable (x64, arm64) |
-| macOS      | DMG Universal |
-| Linux      | AppImage (x64, arm64), .deb (x64, arm64) |
+| macOS      | DMG Universal                                      |
+| Linux      | AppImage (x64, arm64), .deb (x64, arm64)           |
 
 ---
 

@@ -6,7 +6,15 @@ import Themes from './Selects/Themes'
 import WindowControls from './WindowControls'
 
 function Config() {
-  const { theme: ctxTheme, setTheme, minutes: ctxMinutes, setMinutes, loops: ctxLoops, setLoops, running } = useTimer()
+  const {
+    theme: ctxTheme,
+    setTheme,
+    minutes: ctxMinutes,
+    setMinutes,
+    loops: ctxLoops,
+    setLoops,
+    running
+  } = useTimer()
   const [localTheme, setLocalTheme] = useState(ctxTheme)
   const [localMinutes, setLocalMinutes] = useState(ctxMinutes)
   const [localLoops, setLocalLoops] = useState(ctxLoops)
@@ -50,12 +58,15 @@ function Config() {
 
       <div className="settings-config__body">
         <div className="settings-config__inner">
-
           <section className="settings-config__section">
             <span className="settings-config__section-label">Timer</span>
             <div className="settings-config__group">
               <Minutes value={localMinutes} onChange={setLocalMinutes} disabled={running} />
-              <Times value={String(localLoops)} onChange={(v) => setLocalLoops(Number(v))} disabled={running} />
+              <Times
+                value={String(localLoops)}
+                onChange={(v) => setLocalLoops(Number(v))}
+                disabled={running}
+              />
             </div>
             {running && (
               <p className="settings-config__warning">
@@ -101,7 +112,6 @@ function Config() {
               </span>
             </label>
           </section>
-
         </div>
       </div>
 

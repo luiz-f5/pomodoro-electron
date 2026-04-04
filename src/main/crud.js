@@ -20,9 +20,7 @@ export async function updateSession(id, data) {
 export async function completeSession(id, completedLoops) {
   const end = new Date()
   const session = await getModels()?.Session?.findByPk(id)
-  const totalDuration = session
-    ? Math.round((end - new Date(session.startTime)) / 1000)
-    : null
+  const totalDuration = session ? Math.round((end - new Date(session.startTime)) / 1000) : null
   return updateSession(id, { status: 'completed', endTime: end, completedLoops, totalDuration })
 }
 

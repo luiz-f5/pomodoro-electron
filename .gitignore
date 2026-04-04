@@ -4,5 +4,6 @@ dist
 out
 .DS_Store
 .eslintcache
+*.pem
 .env
 *.log*

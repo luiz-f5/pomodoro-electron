@@ -66,7 +66,9 @@ export function TimerProvider({ children }) {
 
   // Carrega histórico do DB na montagem (sobrescreve localStorage se DB disponível)
   useEffect(() => {
-    db.getHistory().then((h) => { if (h) setHistory(h) })
+    db.getHistory().then((h) => {
+      if (h) setHistory(h)
+    })
   }, [db])
 
   // --- Efeitos de Sincronização e IPC ---
@@ -202,7 +204,9 @@ export function TimerProvider({ children }) {
     setMessage('Sessão de foco iniciada!')
     notify?.send('Pomodoro', 'Sessão de foco iniciada!')
     playSound('FOCUS_START')
-    db.createSession({ totalLoops: loops }).then((s) => { sessionIdRef.current = s?.id ?? null })
+    db.createSession({ totalLoops: loops }).then((s) => {
+      sessionIdRef.current = s?.id ?? null
+    })
     startInterval()
   }, [running, api, minutes, loops, notify, playSound, startInterval, parseTime, db])
 

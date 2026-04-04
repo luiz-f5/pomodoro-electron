@@ -75,10 +75,7 @@ export function useDatabase() {
   // ─── History ───────────────────────────────────────────────────────────────
 
   const getHistory = useCallback(async () => {
-    return tryDb(
-      () => window.dbAPI?.history.get(),
-      lsGetHistory
-    )
+    return tryDb(() => window.dbAPI?.history.get(), lsGetHistory)
   }, [])
 
   const addHistoryEntry = useCallback(async (date) => {
@@ -109,7 +106,12 @@ export function useDatabase() {
   const completeSession = useCallback(async (id, completedLoops) => {
     return tryDb(
       () => window.dbAPI?.session.complete(id, completedLoops),
-      () => lsUpdateSession(id, { status: 'completed', endTime: new Date().toISOString(), completedLoops })
+      () =>
+        lsUpdateSession(id, {
+          status: 'completed',
+          endTime: new Date().toISOString(),
+          completedLoops
+        })
     )
   }, [])
 
@@ -128,10 +130,7 @@ export function useDatabase() {
   }, [])
 
   const listSessions = useCallback(async (opts) => {
-    return tryDb(
-      () => window.dbAPI?.session.list(opts),
-      lsGetSessions
-    )
+    return tryDb(() => window.dbAPI?.session.list(opts), lsGetSessions)
   }, [])
 
   return {
