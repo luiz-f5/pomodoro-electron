@@ -5,7 +5,7 @@ const FREESOUND_API = 'https://freesound.org/apiv2/sounds'
 
 // ID do FreeSound para cada evento
 const SOUND_IDS = {
-  FOCUS_START:      609725,
+  FOCUS_START:      376193,
   FOCUS_TO_BREAK:   376193,
   BREAK_TO_FOCUS:   633159,
   SESSION_COMPLETE: 634089,
