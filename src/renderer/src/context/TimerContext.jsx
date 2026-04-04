@@ -175,9 +175,6 @@ export function TimerProvider({ children }) {
           return 0
         }
         const next = prev - 1
-        if (stateRef.current.phase === 'focus' && next <= 5 && next > 0) {
-          playSound('TICK')
-        }
         return next
       })
     }, 1000)
