@@ -1,13 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ButtonMin from './Buttons/ButtonMin'
 import ButtonMax from './Buttons/ButtonMax'
 import ButtonClose from './Buttons/ButtonClose'
-import ButtonReload from './Buttons/ButtonReload'
-import ButtonForceReload from './Buttons/ButtonReload'
 import ButtonDebug from './Buttons/ButtonDebug'
 import ButtonHelp from './Buttons/ButtonHelp'
 import ButtonZoom from './Buttons/ButtonZoom'
-import ButtonFullScreen from './Buttons/ButtonFullScreen'
 import ButtonQuit from './Buttons/ButtonQuit'
 import ButtonSettings from './Buttons/ButtonSettings'
 import Calendar from './Calendar'
@@ -16,19 +13,30 @@ import History from './History'
 function Window() {
   const [calOpen, setCalOpen] = useState(false)
   const [histOpen, setHistOpen] = useState(false)
+  const [debugMode, setDebugMode] = useState(false)
+
+  useEffect(() => {
+
+    window.settingsAPI.get().then((settings) => {
+      if (settings.debugMode) setDebugMode(settings.debugMode)
+    })
+
+    window.themeAPI.onSettings((settings) => {
+      if (typeof settings.debugMode !== 'undefined') {
+        setDebugMode(settings.debugMode)
+      }
+    })
+  }, [])
 
   return (
     <>
       <div className="window">
         <div className="window-settings">
           <ButtonQuit />
-          <ButtonReload />
-          <ButtonForceReload />
-          <ButtonDebug />
           <ButtonZoom />
-          <ButtonFullScreen />
           <ButtonHelp />
           <ButtonSettings />
+          {debugMode && <ButtonDebug />}
         </div>
 
         <div className="window-controls">

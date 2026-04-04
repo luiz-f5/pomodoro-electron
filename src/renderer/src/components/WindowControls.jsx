@@ -1,5 +1,6 @@
-import ButtonMin from './Buttons/ButtonMin'
-import ButtonMax from './Buttons/ButtonMax'
+//import ButtonMin from './Buttons/ButtonMin'
+//import ButtonMax from './Buttons/ButtonMax'
+//estes provavelmente devem ser removidos?
 import ButtonClose from './Buttons/ButtonClose'
 
 function WindowControls() {
@@ -7,8 +8,8 @@ function WindowControls() {
     <>
       <div className="window">
         <div className="window-controls">
-          <ButtonMin />
-          <ButtonMax />
+        {/*  <ButtonMin /> */}
+        {/*  <ButtonMax /> */}
           <ButtonClose />
         </div>
       </div>
