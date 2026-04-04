@@ -47,10 +47,17 @@ export async function deleteSession(id) {
 
 // ─── Timestamp ────────────────────────────────────────────────────────────────
 
-export async function createTimestamp({ sessionId = null, type = 'pomodoro' }) {
+export async function createTimestamp({ sessionId = null, type = 'pomodoro', completed = false }) {
   if (!isDbAvailable()) return null
   const { Timestamp } = getModels()
-  const ts = await Timestamp.create({ sessionId, startTime: new Date(), type })
+  const now = new Date()
+  const ts = await Timestamp.create({
+    sessionId,
+    startTime: now,
+    endTime: completed ? now : null,
+    type,
+    completed
+  })
   return ts.toJSON()
 }
 

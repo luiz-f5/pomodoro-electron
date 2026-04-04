@@ -86,7 +86,7 @@ export function useDatabase() {
 
     // Cria timestamp no DB se disponível
     try {
-      await window.dbAPI?.timestamp.create({ type: 'pomodoro' })
+      await window.dbAPI?.timestamp.create({ type: 'pomodoro', completed: true })
     } catch {
       // silencioso
     }
