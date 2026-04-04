@@ -2,12 +2,9 @@ import { useState } from 'react'
 import ButtonMin from './Buttons/ButtonMin'
 import ButtonMax from './Buttons/ButtonMax'
 import ButtonClose from './Buttons/ButtonClose'
-import ButtonReload from './Buttons/ButtonReload'
-import ButtonForceReload from './Buttons/ButtonReload'
 import ButtonDebug from './Buttons/ButtonDebug'
 import ButtonHelp from './Buttons/ButtonHelp'
 import ButtonZoom from './Buttons/ButtonZoom'
-import ButtonFullScreen from './Buttons/ButtonFullScreen'
 import ButtonQuit from './Buttons/ButtonQuit'
 import ButtonSettings from './Buttons/ButtonSettings'
 import Calendar from './Calendar'
@@ -22,13 +19,10 @@ function Window() {
       <div className="window">
         <div className="window-settings">
           <ButtonQuit />
-          <ButtonReload />
-          <ButtonForceReload />
-          <ButtonDebug />
           <ButtonZoom />
-          <ButtonFullScreen />
           <ButtonHelp />
           <ButtonSettings />
+          <ButtonDebug />
         </div>
 
         <div className="window-controls">

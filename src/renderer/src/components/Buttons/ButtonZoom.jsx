@@ -9,7 +9,8 @@ export default function ButtonZoom() {
       menuOptions={[
         { label: 'Aumentar zoom', onClick: () => api.send('zoom-in') },
         { label: 'Diminuir zoom', onClick: () => api.send('zoom-out') },
-        { label: 'Tamanho original', onClick: () => api.send('zoom-reset') }
+        { label: 'Tamanho original', onClick: () => api.send('zoom-reset') },
+        { label: 'Fullscreen', onClick: () => api.send('fullscreen') }
       ]}
     />
   )
