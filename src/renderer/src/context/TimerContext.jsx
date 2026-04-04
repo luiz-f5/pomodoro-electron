@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useSound } from '../hooks/useSound'
+import { useDatabase } from '../hooks/useDatabase'
 
 // Contextos separados para otimizar re-renders
 const TimerStateContext = createContext(null)
@@ -42,6 +43,8 @@ export function TimerProvider({ children }) {
   const notify = useRef(typeof window !== 'undefined' ? window.notifyAPI : null).current
   const themeAPI = useRef(typeof window !== 'undefined' ? window.themeAPI : null).current
   const playSound = useSound()
+  const db = useDatabase()
+  const sessionIdRef = useRef(null)
 
   // --- Funções Auxiliares ---
   const parseTime = useCallback((val) => {
@@ -55,14 +58,16 @@ export function TimerProvider({ children }) {
     return { focus: 25 * 60, brk: 5 * 60 }
   }, [])
 
-  const addHistoryEntry = useCallback(() => {
+  const addHistoryEntry = useCallback(async () => {
     const today = new Date().toISOString().split('T')[0]
-    setHistory((prev) => {
-      const newHist = { ...prev, [today]: (prev[today] || 0) + 1 }
-      localStorage.setItem('pomodoro-history', JSON.stringify(newHist))
-      return newHist
-    })
-  }, [])
+    const newHist = await db.addHistoryEntry(today)
+    setHistory(newHist)
+  }, [db])
+
+  // Carrega histórico do DB na montagem (sobrescreve localStorage se DB disponível)
+  useEffect(() => {
+    db.getHistory().then((h) => { if (h) setHistory(h) })
+  }, [db])
 
   // --- Efeitos de Sincronização e IPC ---
 
@@ -155,6 +160,7 @@ export function TimerProvider({ children }) {
         notify?.send('Pomodoro', 'Sessão completa! Ótimo trabalho.')
         playSound('SESSION_COMPLETE')
         api?.pararSessao()
+        if (sessionIdRef.current) db.completeSession(sessionIdRef.current, nextLoop)
       } else {
         setPhase('focus')
         setRemaining(focus)
@@ -164,7 +170,7 @@ export function TimerProvider({ children }) {
         playSound('BREAK_TO_FOCUS')
       }
     }
-  }, [clearTimer, api, notify, playSound, parseTime, addHistoryEntry])
+  }, [clearTimer, api, notify, playSound, parseTime, addHistoryEntry, db])
 
   const startInterval = useCallback(() => {
     clearTimer()
@@ -196,8 +202,9 @@ export function TimerProvider({ children }) {
     setMessage('Sessão de foco iniciada!')
     notify?.send('Pomodoro', 'Sessão de foco iniciada!')
     playSound('FOCUS_START')
+    db.createSession({ totalLoops: loops }).then((s) => { sessionIdRef.current = s?.id ?? null })
     startInterval()
-  }, [running, api, minutes, notify, playSound, startInterval, parseTime])
+  }, [running, api, minutes, loops, notify, playSound, startInterval, parseTime, db])
 
   const stopSession = useCallback(async () => {
     if (!running) return
@@ -207,7 +214,11 @@ export function TimerProvider({ children }) {
     setMessage('Sessão de foco parada')
     notify?.send('Pomodoro', 'A sessão de foco foi parada')
     playSound('SESSION_STOP')
-  }, [running, api, clearTimer, notify, playSound])
+    if (sessionIdRef.current) {
+      db.stopSession(sessionIdRef.current)
+      sessionIdRef.current = null
+    }
+  }, [running, api, clearTimer, notify, playSound, db])
 
   const cancelSession = useCallback(async () => {
     await api?.pararSessao()
@@ -220,7 +231,11 @@ export function TimerProvider({ children }) {
     setTotal(focus)
     setMessage('Sessão cancelada.')
     playSound('SESSION_CANCEL')
-  }, [api, clearTimer, minutes, playSound, parseTime])
+    if (sessionIdRef.current) {
+      db.cancelSession(sessionIdRef.current)
+      sessionIdRef.current = null
+    }
+  }, [api, clearTimer, minutes, playSound, parseTime, db])
 
   const resumeSession = useCallback(() => {
     setRunning(true)

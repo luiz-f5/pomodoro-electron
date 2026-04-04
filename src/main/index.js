@@ -18,6 +18,8 @@ import dotenv from 'dotenv'
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
+import { setupDatabase } from './database.js'
+import { registerDatabaseHandlers } from './ipcDatabase.js'
 
 // Carrega variáveis de ambiente do .env
 dotenv.config()
@@ -124,6 +126,8 @@ function createMainWindow() {
 app.commandLine.appendSwitch('log-level', '3')
 
 app.whenReady().then(async () => {
+  await setupDatabase()
+  registerDatabaseHandlers()
   await loadCustomSound()
   createMainWindow()
 

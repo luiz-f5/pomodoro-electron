@@ -75,8 +75,40 @@ const apiSound = {
   getCustomSound: () => ipcRenderer.invoke('get-custom-sound')
 }
 
+const apiDb = {
+  available: () => ipcRenderer.invoke('db:available'),
+
+  session: {
+    create: (data) => ipcRenderer.invoke('db:session:create', data),
+    update: (id, data) => ipcRenderer.invoke('db:session:update', id, data),
+    complete: (id, completedLoops) => ipcRenderer.invoke('db:session:complete', id, completedLoops),
+    stop: (id) => ipcRenderer.invoke('db:session:stop', id),
+    cancel: (id) => ipcRenderer.invoke('db:session:cancel', id),
+    list: (opts) => ipcRenderer.invoke('db:session:list', opts),
+    delete: (id) => ipcRenderer.invoke('db:session:delete', id)
+  },
+
+  timestamp: {
+    create: (data) => ipcRenderer.invoke('db:timestamp:create', data),
+    complete: (id) => ipcRenderer.invoke('db:timestamp:complete', id),
+    list: (opts) => ipcRenderer.invoke('db:timestamp:list', opts),
+    delete: (id) => ipcRenderer.invoke('db:timestamp:delete', id)
+  },
+
+  history: {
+    get: () => ipcRenderer.invoke('db:history:get')
+  },
+
+  settings: {
+    get: () => ipcRenderer.invoke('db:settings:get'),
+    set: (data) => ipcRenderer.invoke('db:settings:set', data)
+  }
+}
+
 if (process.contextIsolated) {
   contextBridge.exposeInMainWorld('soundAPI', apiSound)
+  contextBridge.exposeInMainWorld('dbAPI', apiDb)
 } else {
   window.soundAPI = apiSound
+  window.dbAPI = apiDb
 }
