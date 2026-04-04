@@ -268,3 +268,89 @@
   text-shadow: 0 0 10px var(--color-accent);
   opacity: 1;
 }
+
+.settings-config__input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.settings-config__input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.settings-config__input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  background: var(--glass-bg-mid);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.settings-config__button {
+  margin-top: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md, 10px);
+  border: none;
+  background: var(--color-accent);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.settings-config__button:hover {
+  background: color-mix(in srgb, var(--color-accent) 80%, #000);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.settings-config__button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.settings-config__checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.settings-config__checkbox:hover {
+  background: var(--glass-bg-mid);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+}
+
+.settings-config__checkbox:checked {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.settings-config__checkbox:checked::after {
+  content: '✔';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  font-size: 0.8rem;
+  color: #fff;
+  font-weight: bold;
+}

@@ -23,12 +23,18 @@ const apiTheme = {
   onSettings: (callback) => ipcRenderer.on('settings-changed', (_, data) => callback(data))
 }
 
+const apiSettings = {
+  get: () => ipcRenderer.invoke('get-settings'),
+  set: (settings) => ipcRenderer.invoke('set-settings', settings)
+}
+
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('widgetAPI', apiPomodoro)
     contextBridge.exposeInMainWorld('notifyAPI', apiNotify)
     contextBridge.exposeInMainWorld('menuAPI', apiMenu)
     contextBridge.exposeInMainWorld('themeAPI', apiTheme)
+    contextBridge.exposeInMainWorld('settingsAPI', apiSettings)
   } catch (error) {
     console.error(error)
   }
@@ -38,3 +44,14 @@ if (process.contextIsolated) {
   window.menuAPI = apiMenu
   window.themeAPI = apiTheme
 }
+
+const apiSound = {
+  getCustomSound: () => ipcRenderer.invoke('get-custom-sound')
+}
+
+if (process.contextIsolated) {
+  contextBridge.exposeInMainWorld('soundAPI', apiSound)
+} else {
+  window.soundAPI = apiSound
+}
+

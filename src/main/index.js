@@ -15,6 +15,9 @@ import { join } from 'node:path'
 import { spawn } from 'node:child_process'
 import icon from '../../resources/icon.png?asset'
 import dotenv from 'dotenv'
+import fs from 'fs'
+import path from 'path'
+import os from 'os'
 
 dotenv.config()
 
@@ -109,17 +112,15 @@ function createMainWindow() {
 
 app.commandLine.appendSwitch('log-level', '3')
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  await loadCustomSound()
   createMainWindow()
 
   const trayIcon = nativeImage.createFromPath(icon)
   tray = new Tray(trayIcon)
 
   const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Minimizar',
-      click: () => mainWindow?.minimize()
-    },
+    { label: 'Minimizar', click: () => mainWindow?.minimize() },
     {
       label: 'Maximizar/Restaurar',
       click: () => {
@@ -142,7 +143,9 @@ app.whenReady().then(() => {
   })
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
+    if (process.platform === 'darwin' && BrowserWindow.getAllWindows().length === 0) {
+      createMainWindow()
+    }
   })
 })
 
@@ -226,8 +229,67 @@ ipcMain.handle('parar-foco', () => {
 })
 
 ipcMain.on('show-notification', (event, { title, body }) => {
-  new Notification({ title, body, icon: nativeImage.createFromPath(icon) }).show()
+  const win = BrowserWindow.getFocusedWindow()
+  const isFocused = win?.isFocused()
+
+  if (!isFocused) {
+    new Notification({
+      title,
+      body,
+      icon: nativeImage.createFromPath(icon)
+    }).show()
+  }
 })
+
+let customSoundPath = null
+
+const settingsDir = path.join(os.homedir(), '.config', 'pomodoro-electron')
+const settingsFile = path.join(settingsDir, 'settings.json')
+
+function loadSettings() {
+  try {
+    if (!fs.existsSync(settingsFile)) return {}
+    const raw = fs.readFileSync(settingsFile, 'utf-8')
+    return JSON.parse(raw)
+  } catch (err) {
+    console.error('Failed to load settings:', err.message)
+    return {}
+  }
+}
+
+async function loadCustomSound() {
+  const settings = loadSettings()
+  const FREESOUND_API_KEY = settings.freesoundApiKey || null
+
+  if (!FREESOUND_API_KEY) {
+    console.log('Nenhuma API key definida, usando som padrão.')
+    customSoundPath = null
+    return
+  }
+
+  try {
+    const soundId = 740423
+    const apiUrl = `https://freesound.org/apiv2/sounds/${soundId}/?token=${FREESOUND_API_KEY}`
+
+    const res = await fetch(apiUrl)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+    const data = await res.json()
+    const previewUrl = data.previews['preview-hq-ogg']
+
+    const tmpFile = path.join(os.tmpdir(), 'notif.ogg')
+    const audioRes = await fetch(previewUrl)
+    if (!audioRes.ok) throw new Error(`HTTP ${audioRes.status}`)
+
+    const buffer = await audioRes.arrayBuffer()
+    fs.writeFileSync(tmpFile, Buffer.from(buffer))
+    customSoundPath = tmpFile
+    console.log('Custom sound loaded', tmpFile)
+  } catch (err) {
+    console.error('Failed to load custom sound:', err.message)
+    customSoundPath = null
+  }
+}
 
 ipcMain.on('play-sound', () => {
   if (process.platform !== 'linux') return
@@ -237,15 +299,47 @@ ipcMain.on('play-sound', () => {
     p.on('error', () => next && next())
   }
 
-  tryPlay('canberra-gtk-play', ['--id=message'], () => {
-    tryPlay('paplay', ['/usr/share/sounds/freedesktop/stereo/message.oga'], () => {
-      tryPlay('aplay', ['/usr/share/sounds/alsa/Noise.wav'])
+  if (customSoundPath) {
+    tryPlay('ffplay', ['-nodisp', '-autoexit', customSoundPath], () => {
+      console.error('Failed to play custom sound, falling back')
+      fallbackPlay()
     })
-  })
+  } else {
+    fallbackPlay()
+  }
+
+  function fallbackPlay() {
+    tryPlay('canberra-gtk-play', ['--id=message'], () => {
+      tryPlay('paplay', ['/usr/share/sounds/freedesktop/stereo/message.oga'], () => {
+        tryPlay('aplay', ['/usr/share/sounds/alsa/Noise.wav'])
+      })
+    })
+  }
 })
+
+ipcMain.handle('get-custom-sound', () => customSoundPath)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+function saveSettings(newSettings) {
+  try {
+    const current = loadSettings()
+    const merged = { ...current, ...newSettings }
+
+    if (!fs.existsSync(settingsDir)) fs.mkdirSync(settingsDir, { recursive: true })
+    fs.writeFileSync(settingsFile, JSON.stringify(merged, null, 2))
+    console.log('Settings saved:', settingsFile)
+  } catch (err) {
+    console.error('Failed to save settings:', err.message)
+  }
+}
+
+ipcMain.handle('get-settings', () => loadSettings())
+ipcMain.handle('set-settings', (event, newSettings) => {
+  saveSettings(newSettings)
+  return true
 })
