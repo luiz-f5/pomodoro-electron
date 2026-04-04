@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ButtonMin from './Buttons/ButtonMin'
 import ButtonMax from './Buttons/ButtonMax'
 import ButtonClose from './Buttons/ButtonClose'
@@ -13,6 +13,20 @@ import History from './History'
 function Window() {
   const [calOpen, setCalOpen] = useState(false)
   const [histOpen, setHistOpen] = useState(false)
+  const [debugMode, setDebugMode] = useState(false)
+
+  useEffect(() => {
+
+    window.settingsAPI.get().then((settings) => {
+      if (settings.debugMode) setDebugMode(settings.debugMode)
+    })
+
+    window.themeAPI.onSettings((settings) => {
+      if (typeof settings.debugMode !== 'undefined') {
+        setDebugMode(settings.debugMode)
+      }
+    })
+  }, [])
 
   return (
     <>
@@ -22,7 +36,7 @@ function Window() {
           <ButtonZoom />
           <ButtonHelp />
           <ButtonSettings />
-          <ButtonDebug />
+          {debugMode && <ButtonDebug />}
         </div>
 
         <div className="window-controls">
