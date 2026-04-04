@@ -10,7 +10,8 @@ const SOUND_IDS = {
   BREAK_TO_FOCUS:   633159,
   SESSION_COMPLETE: 634089,
   SESSION_STOP:     263802,
-  SESSION_CANCEL:   493551
+  SESSION_CANCEL:   672085,
+  TICK:             76376
 }
 
 async function fetchPreviewUrl(soundId, token) {
@@ -20,8 +21,8 @@ async function fetchPreviewUrl(soundId, token) {
   return data.previews['preview-hq-mp3'] || data.previews['preview-lq-mp3']
 }
 
-// Eventos que interrompem qualquer som em reprodução sem tocar outro
-const STOP_ONLY = new Set(['SESSION_STOP', 'SESSION_CANCEL'])
+// Eventos que não interrompem o som atual (tocam por cima)
+const OVERLAY = new Set(['TICK'])
 
 function stopAudio(audio) {
   if (!audio) return
@@ -29,9 +30,15 @@ function stopAudio(audio) {
   audio.currentTime = 0
 }
 
+function playAudio(audio, onEnd) {
+  audio.currentTime = 0
+  audio.play().catch((err) => console.error('playSound error:', err))
+  audio.onended = onEnd
+}
+
 export function useSound() {
   const cache = useRef({})
-  const current = useRef(null) // áudio em reprodução no momento
+  const current = useRef(null) // áudio principal em reprodução
 
   useEffect(() => {
     async function preload() {
@@ -52,19 +59,21 @@ export function useSound() {
   }, [])
 
   const play = useCallback((event) => {
-    // Para qualquer som que esteja tocando
+    const audio = cache.current[event]
+
+    // TICK toca por cima sem interromper o som principal
+    if (OVERLAY.has(event)) {
+      if (audio) playAudio(audio, () => {})
+      return
+    }
+
+    // Para o som principal antes de tocar outro
     stopAudio(current.current)
     current.current = null
 
-    // Ações de parar/cancelar apenas interrompem, não tocam nada
-    if (STOP_ONLY.has(event)) return
-
-    const audio = cache.current[event]
     if (audio) {
-      audio.currentTime = 0
-      audio.play().catch((err) => console.error('playSound error:', err))
+      playAudio(audio, () => { current.current = null })
       current.current = audio
-      audio.onended = () => { current.current = null }
       return
     }
 

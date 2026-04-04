@@ -174,7 +174,11 @@ export function TimerProvider({ children }) {
           goToNextPhase()
           return 0
         }
-        return prev - 1
+        const next = prev - 1
+        if (stateRef.current.phase === 'focus' && next <= 5 && next > 0) {
+          playSound('TICK')
+        }
+        return next
       })
     }, 1000)
   }, [clearTimer, goToNextPhase])
