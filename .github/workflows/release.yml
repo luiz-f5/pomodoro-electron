@@ -46,8 +46,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Reassemble SSL Certificate
+        shell: bash
+        run: |
+          mkdir -p src/pem
+          echo "${{ secrets.SSL_P_00 }}${{ secrets.SSL_P_01 }}${{ secrets.SSL_P_02 }}${{ secrets.SSL_P_03 }}${{ secrets.SSL_P_04 }}${{ secrets.SSL_P_05 }}${{ secrets.SSL_P_06 }}${{ secrets.SSL_P_07 }}${{ secrets.SSL_P_08 }}" > src/pem/global-bundle.pem
+
       - name: Build app
         run: pnpm run build
+        env:
+          VITE_DATABASE_PG: ${{ secrets.VITE_DATABASE_PG }}
+          VITE_USER_PG: ${{ secrets.VITE_USER_PG }}
+          VITE_PASS_PG: ${{ secrets.VITE_PASS_PG }}
+          VITE_HOST_PG: ${{ secrets.VITE_HOST_PG }}
+          VITE_PORT_PG: ${{ secrets.VITE_PORT_PG }}
+          VITE_FREESOUND_TOKEN: ${{ secrets.VITE_FREESOUND_TOKEN }}
 
       - name: Build & Publish
         run: pnpm exec electron-builder ${{ matrix.platform }} --publish always
