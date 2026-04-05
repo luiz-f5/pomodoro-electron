@@ -14,18 +14,20 @@ import {
 import { join } from 'node:path'
 import { spawn } from 'node:child_process'
 import icon from '../../resources/icon.png?asset'
-import dotenv from 'dotenv'
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
+import { setupDatabase } from './database.js'
+import { registerDatabaseHandlers } from './ipcDatabase.js'
 
-dotenv.config()
+const freesoundToken = import.meta.env.VITE_FREESOUND_TOKEN
 
 export let mainWindow = null
 export let secondaryWindow = null
 
 let bloqueadorFocoId = null
 let tray = null
+let lastTimerState = { running: false }
 
 Menu.setApplicationMenu(null)
 
@@ -38,11 +40,10 @@ function createSettingsWindow() {
   secondaryWindow = new BrowserWindow({
     parent: mainWindow,
     show: false,
-    width: 450,
-    height: 550,
-    minWidth: 350,
-    minHeight: 450,
-    maxWidth: 600,
+    width: 580,
+    height: 760,
+    minWidth: 440,
+    minHeight: 600,
     frame: false,
     transparent: true,
     webPreferences: {
@@ -57,6 +58,15 @@ function createSettingsWindow() {
 
   secondaryWindow.once('ready-to-show', () => {
     secondaryWindow.show()
+    secondaryWindow.webContents.send('timer-state', lastTimerState)
+  })
+
+  secondaryWindow.on('maximize', () => {
+    secondaryWindow.webContents.send('window-maximize-changed', true)
+  })
+
+  secondaryWindow.on('unmaximize', () => {
+    secondaryWindow.webContents.send('window-maximize-changed', false)
   })
 
   secondaryWindow.on('closed', () => {
@@ -113,40 +123,61 @@ function createMainWindow() {
 app.commandLine.appendSwitch('log-level', '3')
 
 app.whenReady().then(async () => {
-  await loadCustomSound()
-  createMainWindow()
+  try {
+    console.log('--- Iniciando Sequência de Boot ---')
 
-  const trayIcon = nativeImage.createFromPath(icon)
-  tray = new Tray(trayIcon)
+    // 1. Tenta conectar e sincronizar o banco
+    console.log('Conectando ao banco de dados...')
+    await setupDatabase()
+    console.log('✅ Banco de dados sincronizado com sucesso.')
 
-  const contextMenu = Menu.buildFromTemplate([
-    { label: 'Minimizar', click: () => mainWindow?.minimize() },
-    {
-      label: 'Maximizar/Restaurar',
-      click: () => {
-        if (!mainWindow) return
-        mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
+    // 2. Registra os handlers de IPC
+    registerDatabaseHandlers()
+
+    // 3. Carrega sons e interface
+    await loadCustomSound()
+    createMainWindow()
+
+    // --- Configuração do Tray ---
+    const trayIcon = nativeImage.createFromPath(icon)
+    tray = new Tray(trayIcon)
+
+    const contextMenu = Menu.buildFromTemplate([
+      { label: 'Minimizar', click: () => mainWindow?.minimize() },
+      {
+        label: 'Maximizar/Restaurar',
+        click: () => {
+          if (!mainWindow) return
+          mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
+        }
+      },
+      { type: 'separator' },
+      { label: 'Fechar', click: () => app.quit() }
+    ])
+
+    tray.setContextMenu(contextMenu)
+
+    // --- Monitores de Energia ---
+    powerMonitor.on('on-battery', () => {
+      mainWindow?.webContents.send('alerta-energia', 'bateria')
+    })
+
+    powerMonitor.on('on-ac', () => {
+      mainWindow?.webContents.send('alerta-energia', 'tomada')
+    })
+
+    app.on('activate', () => {
+      if (process.platform === 'darwin' && BrowserWindow.getAllWindows().length === 0) {
+        createMainWindow()
       }
-    },
-    { type: 'separator' },
-    { label: 'Fechar', click: () => app.quit() }
-  ])
+    })
 
-  tray.setContextMenu(contextMenu)
-
-  powerMonitor.on('on-battery', () => {
-    mainWindow?.webContents.send('alerta-energia', 'bateria')
-  })
-
-  powerMonitor.on('on-ac', () => {
-    mainWindow?.webContents.send('alerta-energia', 'tomada')
-  })
-
-  app.on('activate', () => {
-    if (process.platform === 'darwin' && BrowserWindow.getAllWindows().length === 0) {
-      createMainWindow()
-    }
-  })
+    console.log('--- App pronto e rodando ---')
+  } catch (error) {
+    console.error('\n❌ ERRO CRÍTICO NA INICIALIZAÇÃO:')
+    console.error('Mensagem:', error.message)
+    console.error('Stack Trace:', error.stack)
+  }
 })
 
 ipcMain.on('fechar-janela', (event) => {
@@ -205,9 +236,16 @@ ipcMain.on('menu-comando', (event, comando) => {
 
 ipcMain.on('update-settings', (event, settings) => {
   for (const win of BrowserWindow.getAllWindows()) {
-    if (!win.isDestroyed()) {
+    if (!win.isDestroyed() && win.webContents !== event.sender) {
       win.webContents.send('settings-changed', settings)
     }
+  }
+})
+
+ipcMain.on('send-timer-state', (event, state) => {
+  lastTimerState = state
+  if (secondaryWindow && !secondaryWindow.isDestroyed()) {
+    secondaryWindow.webContents.send('timer-state', state)
   }
 })
 
@@ -259,7 +297,7 @@ function loadSettings() {
 
 async function loadCustomSound() {
   const settings = loadSettings()
-  const FREESOUND_API_KEY = settings.freesoundApiKey || null
+  const FREESOUND_API_KEY = settings.freesoundApiKey || freesoundToken || null
 
   if (!FREESOUND_API_KEY) {
     console.log('Nenhuma API key definida, usando som padrão.')
@@ -318,6 +356,12 @@ ipcMain.on('play-sound', () => {
 })
 
 ipcMain.handle('get-custom-sound', () => customSoundPath)
+
+// IPC handler para obter token FreeSound
+ipcMain.handle('get-freesound-token', () => {
+  const settings = loadSettings()
+  return settings.freesoundApiKey || freesoundToken
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
