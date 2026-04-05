@@ -126,19 +126,15 @@ app.whenReady().then(async () => {
   try {
     console.log('--- Iniciando Sequência de Boot ---')
 
-    // 1. Tenta conectar e sincronizar o banco
     console.log('Conectando ao banco de dados...')
     await setupDatabase()
     console.log('✅ Banco de dados sincronizado com sucesso.')
 
-    // 2. Registra os handlers de IPC
     registerDatabaseHandlers()
 
-    // 3. Carrega sons e interface
     await loadCustomSound()
     createMainWindow()
 
-    // --- Configuração do Tray ---
     const trayIcon = nativeImage.createFromPath(icon)
     tray = new Tray(trayIcon)
 
@@ -157,7 +153,6 @@ app.whenReady().then(async () => {
 
     tray.setContextMenu(contextMenu)
 
-    // --- Monitores de Energia ---
     powerMonitor.on('on-battery', () => {
       mainWindow?.webContents.send('alerta-energia', 'bateria')
     })
@@ -357,7 +352,6 @@ ipcMain.on('play-sound', () => {
 
 ipcMain.handle('get-custom-sound', () => customSoundPath)
 
-// IPC handler para obter token FreeSound
 ipcMain.handle('get-freesound-token', () => {
   const settings = loadSettings()
   return settings.freesoundApiKey || freesoundToken

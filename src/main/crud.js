@@ -1,8 +1,6 @@
 import { Op } from 'sequelize'
 import { getModels, isDbAvailable } from './database.js'
 
-// ─── Session ─────────────────────────────────────────────────────────────────
-
 export async function createSession({ totalLoops }) {
   if (!isDbAvailable()) return null
   const { Session } = getModels()
@@ -44,8 +42,6 @@ export async function deleteSession(id) {
   const { Session } = getModels()
   return await Session.destroy({ where: { id } })
 }
-
-// ─── Timestamp ────────────────────────────────────────────────────────────────
 
 export async function createTimestamp({ sessionId = null, type = 'pomodoro', completed = false }) {
   if (!isDbAvailable()) return null
@@ -111,8 +107,6 @@ export async function getHistoryFromDb() {
   return history
 }
 
-// ─── CalendarNote ─────────────────────────────────────────────────────────────
-
 export async function getCalendarNotes() {
   if (!isDbAvailable()) return null
   const { CalendarNote } = getModels()
@@ -138,8 +132,6 @@ export async function deleteCalendarNote(date) {
   const { CalendarNote } = getModels()
   return await CalendarNote.destroy({ where: { date } })
 }
-
-// ─── Settings ─────────────────────────────────────────────────────────────────
 
 export async function getDbSettings() {
   if (!isDbAvailable()) return null

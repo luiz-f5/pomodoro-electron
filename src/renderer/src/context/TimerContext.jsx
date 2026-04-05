@@ -1,23 +1,19 @@
-/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useSound } from '../hooks/useSound'
 import { useDatabase } from '../hooks/useDatabase'
 
-// Contextos separados para otimizar re-renders
 const TimerStateContext = createContext(null)
 const TimerConfigContext = createContext(null)
 const TimerActionsContext = createContext(null)
 
-// Carrega o estado do timer salvo, descontando o tempo decorrido enquanto fechado
 function loadSavedTimerState() {
   try {
     const raw = localStorage.getItem('timer-state')
     if (!raw) return null
     const saved = JSON.parse(raw)
     if (!saved.phase || saved.phase === 'idle' || saved.phase === 'done') return null
-    const elapsed = Math.floor((Date.now() - saved.savedAt) / 1000)
-    const remaining = Math.max(0, saved.remaining - elapsed)
+    const remaining = Math.max(0, saved.remaining)
     return { ...saved, remaining, running: false }
   } catch {
     return null
@@ -25,12 +21,10 @@ function loadSavedTimerState() {
 }
 
 export function TimerProvider({ children }) {
-  // --- Estados de Configuração e Persistência ---
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'pomodoro')
   const [minutes, setMinutes] = useState(() => localStorage.getItem('minutes') || '25:00:5:00')
   const [loops, setLoops] = useState(() => Number(localStorage.getItem('loops')) || 1)
 
-  // --- Estado do Histórico (Necessário para o componente History) ---
   const [history, setHistory] = useState(() => {
     try {
       const saved = localStorage.getItem('pomodoro-history')
@@ -40,7 +34,6 @@ export function TimerProvider({ children }) {
     }
   })
 
-  // --- Estados de Controle do Cronômetro (Mudam frequentemente) ---
   const savedTimerRef = useRef(loadSavedTimerState())
   const _s = savedTimerRef.current
   const [phase, setPhase] = useState(_s?.phase ?? 'idle')
@@ -61,7 +54,6 @@ export function TimerProvider({ children }) {
   const stateRef = useRef({})
   const externalRunningUpdateRef = useRef(false)
 
-  // Referências estáveis para as APIs do Electron (definidas uma vez pelo preload)
   const api = useRef(typeof window !== 'undefined' ? window.widgetAPI : null).current
   const notify = useRef(typeof window !== 'undefined' ? window.notifyAPI : null).current
   const themeAPI = useRef(typeof window !== 'undefined' ? window.themeAPI : null).current
@@ -69,7 +61,6 @@ export function TimerProvider({ children }) {
   const db = useDatabase()
   const sessionIdRef = useRef(null)
 
-  // --- Funções Auxiliares ---
   const parseTime = useCallback((val) => {
     const parts = val.split(':').map(Number)
     if (parts.length === 4) {
@@ -87,14 +78,11 @@ export function TimerProvider({ children }) {
     setHistory(newHist)
   }, [db])
 
-  // Carrega histórico do DB na montagem (sobrescreve localStorage se DB disponível)
   useEffect(() => {
     db.getHistory().then((h) => {
       if (h) setHistory(h)
     })
   }, [db])
-
-  // --- Efeitos de Sincronização e IPC ---
 
   useEffect(() => {
     if (!themeAPI?.onSettings) return
@@ -127,7 +115,6 @@ export function TimerProvider({ children }) {
     stateRef.current = { phase, currentLoop, loops, minutes, remaining, running }
   }, [phase, currentLoop, loops, minutes, remaining, running])
 
-  // Persiste o estado do timer no localStorage para restaurar ao reabrir
   useEffect(() => {
     if (phase === 'idle' || phase === 'done') {
       localStorage.removeItem('timer-state')
@@ -163,8 +150,6 @@ export function TimerProvider({ children }) {
     })
     return cleanup
   }, [themeAPI])
-
-  // --- Lógica de Execução do Timer ---
 
   const clearTimer = useCallback(() => {
     if (intervalRef.current) {
@@ -223,8 +208,6 @@ export function TimerProvider({ children }) {
     }, 1000)
   }, [clearTimer, goToNextPhase])
 
-  // --- Funções de Controle ---
-
   const startSession = useCallback(async () => {
     if (running) return
     const ok = await api?.iniciarSessao()
@@ -281,8 +264,6 @@ export function TimerProvider({ children }) {
     setMessage(phase === 'break' ? 'Hora de descansar!' : 'Sessão de foco em andamento...')
     startInterval()
   }, [phase, startInterval])
-
-  // --- Memoized Values para Contextos Separados ---
 
   const stateValue = useMemo(
     () => ({
@@ -351,7 +332,6 @@ function useTimerActions() {
   return context
 }
 
-// Hook compatível com versão anterior (combina tudo)
 export function useTimer() {
   const state = useTimerState()
   const config = useTimerConfig()

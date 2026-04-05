@@ -1,6 +1,6 @@
 # Pomodoro Electron
 
-Aplicação desktop de **Pomodoro Timer** desenvolvida com **Electron**, **React** e **Vite**.  
+Aplicação desktop de **Pomodoro Timer** desenvolvida com **Electron**, **React** e **Vite**.
 Projetada para ajudar na **gestão de tempo e produtividade** utilizando a técnica Pomodoro, com suporte a múltiplos temas, janela de configurações separada, histórico de sessões e notificações de sistema.
 
 ---
@@ -159,5 +159,6 @@ Este projeto está sob a licença **MIT**. Consulte o arquivo [LICENSE.md](LICEN
 
 ## Autores
 
-- **Luiz Henrique Ferreira** — [lhrds0113@proton.me](mailto:lhrds0113@proton.me)
+- **Luiz Henrique Ramos de Souza** — [lhrds0113@proton.me](mailto:lhrds0113@proton.me)
+- **Luiz Henrique Ferreira**
 - **Matheus Henrique**
