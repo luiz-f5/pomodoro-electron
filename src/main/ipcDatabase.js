@@ -37,67 +37,28 @@ export function registerDatabaseHandlers() {
 
   // Session
   ipcMain.handle('db:session:create', wrap(createSession))
-  ipcMain.handle(
-    'db:session:update',
-    wrap((id, data) => updateSession(id, data))
-  )
-  ipcMain.handle(
-    'db:session:complete',
-    wrap((id, completedLoops) => completeSession(id, completedLoops))
-  )
-  ipcMain.handle(
-    'db:session:stop',
-    wrap((id) => stopSession(id))
-  )
-  ipcMain.handle(
-    'db:session:cancel',
-    wrap((id) => cancelSession(id))
-  )
-  ipcMain.handle(
-    'db:session:list',
-    wrap((opts) => listSessions(opts))
-  )
-  ipcMain.handle(
-    'db:session:delete',
-    wrap((id) => deleteSession(id))
-  )
+  ipcMain.handle('db:session:update', wrap(updateSession))
+  ipcMain.handle('db:session:complete', wrap(completeSession))
+  ipcMain.handle('db:session:stop', wrap(stopSession))
+  ipcMain.handle('db:session:cancel', wrap(cancelSession))
+  ipcMain.handle('db:session:list', wrap(listSessions))
+  ipcMain.handle('db:session:delete', wrap(deleteSession))
 
   // Timestamp
-  ipcMain.handle(
-    'db:timestamp:create',
-    wrap((data) => createTimestamp(data))
-  )
-  ipcMain.handle(
-    'db:timestamp:complete',
-    wrap((id) => completeTimestamp(id))
-  )
-  ipcMain.handle(
-    'db:timestamp:list',
-    wrap((opts) => listTimestamps(opts))
-  )
-  ipcMain.handle(
-    'db:timestamp:delete',
-    wrap((id) => deleteTimestamp(id))
-  )
+  ipcMain.handle('db:timestamp:create', wrap(createTimestamp))
+  ipcMain.handle('db:timestamp:complete', wrap(completeTimestamp))
+  ipcMain.handle('db:timestamp:list', wrap(listTimestamps))
+  ipcMain.handle('db:timestamp:delete', wrap(deleteTimestamp))
 
   // History
   ipcMain.handle('db:history:get', wrap(getHistoryFromDb))
 
   // Settings
   ipcMain.handle('db:settings:get', wrap(getDbSettings))
-  ipcMain.handle(
-    'db:settings:set',
-    wrap((data) => setDbSettings(data))
-  )
+  ipcMain.handle('db:settings:set', wrap(setDbSettings))
 
   // CalendarNote
   ipcMain.handle('db:calendar:get', wrap(getCalendarNotes))
-  ipcMain.handle(
-    'db:calendar:set',
-    wrap((date, note) => setCalendarNote(date, note))
-  )
-  ipcMain.handle(
-    'db:calendar:delete',
-    wrap((date) => deleteCalendarNote(date))
-  )
+  ipcMain.handle('db:calendar:set', wrap(setCalendarNote))
+  ipcMain.handle('db:calendar:delete', wrap(deleteCalendarNote))
 }

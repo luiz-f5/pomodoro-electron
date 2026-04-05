@@ -1,7 +1,5 @@
 import { useCallback } from 'react'
 
-// ─── localStorage helpers ─────────────────────────────────────────────────────
-
 function lsGetHistory() {
   try {
     const raw = localStorage.getItem('pomodoro-history')
@@ -58,11 +56,7 @@ function lsUpdateSession(id, patch) {
   return sessions[idx]
 }
 
-// ─── hook ─────────────────────────────────────────────────────────────────────
-
-export function useDatabase() {
-  // Tenta o IPC; se falhar ou não houver DB, usa localStorage
-  async function tryDb(ipcCall, fallback) {
+async function tryDb(ipcCall, fallback) {
     try {
       const res = await ipcCall()
       if (res?.ok && res.data !== null) return res.data
@@ -70,10 +64,9 @@ export function useDatabase() {
       // IPC indisponível (ex: janela sem contexto Electron)
     }
     return fallback()
-  }
+}
 
-  // ─── History ───────────────────────────────────────────────────────────────
-
+export function useDatabase() {
   const getHistory = useCallback(async () => {
     return tryDb(() => window.dbAPI?.history.get(), lsGetHistory)
   }, [])
@@ -81,10 +74,8 @@ export function useDatabase() {
   const addHistoryEntry = useCallback(async (date) => {
     const today = date ?? new Date().toISOString().split('T')[0]
 
-    // Sempre atualiza localStorage como backup
     lsAddHistory(today)
 
-    // Cria timestamp no DB se disponível
     try {
       await window.dbAPI?.timestamp.create({ type: 'pomodoro', completed: true })
     } catch {
@@ -93,8 +84,6 @@ export function useDatabase() {
 
     return lsGetHistory()
   }, [])
-
-  // ─── Session ───────────────────────────────────────────────────────────────
 
   const createSession = useCallback(async ({ totalLoops }) => {
     return tryDb(
@@ -144,8 +133,6 @@ export function useDatabase() {
   }
 }
 
-// ─── localStorage helpers for CalendarNote ────────────────────────────────────
-
 const LS_CAL_KEY = 'cal-notes'
 
 function lsGetCalendarNotes() {
@@ -165,7 +152,6 @@ export function useCalendarNotes() {
     try {
       const res = await window.dbAPI?.calendar.get()
       if (res?.ok && res.data !== null) {
-        // Sincroniza localStorage com o DB para offline posterior
         lsSaveCalendarNotes(res.data)
         return res.data
       }
@@ -176,13 +162,11 @@ export function useCalendarNotes() {
   }, [])
 
   const setNote = useCallback(async (date, note) => {
-    // Atualiza localStorage imediatamente
     const notes = lsGetCalendarNotes()
     if (note && note.trim()) notes[date] = note.trim()
     else delete notes[date]
     lsSaveCalendarNotes(notes)
 
-    // Persiste no DB se disponível
     try {
       if (note && note.trim()) {
         await window.dbAPI?.calendar.set(date, note)

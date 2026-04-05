@@ -14,16 +14,16 @@ import {
 import { join } from 'node:path'
 import { spawn } from 'node:child_process'
 import icon from '../../resources/icon.png?asset'
+import { join as pathJoin } from 'node:path'
 import fs from 'fs'
-import path from 'path'
 import os from 'os'
 import { setupDatabase } from './database.js'
 import { registerDatabaseHandlers } from './ipcDatabase.js'
 
 const freesoundToken = import.meta.env.VITE_FREESOUND_TOKEN
 
-export let mainWindow = null
-export let secondaryWindow = null
+let mainWindow = null
+let secondaryWindow = null
 
 let bloqueadorFocoId = null
 let tray = null
@@ -281,8 +281,8 @@ ipcMain.on('show-notification', (event, { title, body }) => {
 
 let customSoundPath = null
 
-const settingsDir = path.join(os.homedir(), '.config', 'pomodoro-electron')
-const settingsFile = path.join(settingsDir, 'settings.json')
+const settingsDir = pathJoin(os.homedir(), '.config', 'pomodoro-electron')
+const settingsFile = pathJoin(settingsDir, 'settings.json')
 
 function loadSettings() {
   try {
@@ -315,7 +315,7 @@ async function loadCustomSound() {
     const data = await res.json()
     const previewUrl = data.previews['preview-hq-ogg']
 
-    const tmpFile = path.join(os.tmpdir(), 'notif.ogg')
+    const tmpFile = pathJoin(os.tmpdir(), 'notif.ogg')
     const audioRes = await fetch(previewUrl)
     if (!audioRes.ok) throw new Error(`HTTP ${audioRes.status}`)
 
