@@ -1,4 +1,4 @@
-import Select from '../Template/Select'
+import Dropdown from '../Template/Dropdown'
 
 const themeOptions = [
   { id: 1, value: 'pomodoro', text: 'Pomodoro' },
@@ -17,15 +17,7 @@ const themeOptions = [
 ]
 
 function Themes({ theme, setTheme }) {
-  return (
-    <Select
-      options={themeOptions}
-      label="Tema"
-      name="theme"
-      value={theme}
-      func={(e) => setTheme(e.target.value)}
-    />
-  )
+  return <Dropdown options={themeOptions} label="Tema" value={theme} onChange={setTheme} />
 }
 
 export default Themes
