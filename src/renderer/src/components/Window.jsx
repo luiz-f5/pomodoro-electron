@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-import ButtonMin from './Buttons/ButtonMin'
-import ButtonMax from './Buttons/ButtonMax'
-import ButtonClose from './Buttons/ButtonClose'
+import WindowControls from './WindowControls'
 import ButtonDebug from './Buttons/ButtonDebug'
 import ButtonHelp from './Buttons/ButtonHelp'
 import ButtonZoom from './Buttons/ButtonZoom'
@@ -16,16 +14,16 @@ function Window() {
   const [debugMode, setDebugMode] = useState(false)
 
   useEffect(() => {
-
-    window.settingsAPI.get().then((settings) => {
-      if (settings.debugMode) setDebugMode(settings.debugMode)
+    window.settingsAPI?.get().then((settings) => {
+      if (settings?.debugMode) setDebugMode(settings.debugMode)
     })
 
-    window.themeAPI.onSettings((settings) => {
+    const cleanup = window.themeAPI?.onSettings((settings) => {
       if (typeof settings.debugMode !== 'undefined') {
         setDebugMode(settings.debugMode)
       }
     })
+    return cleanup
   }, [])
 
   return (
@@ -101,9 +99,7 @@ function Window() {
             </svg>
           </button>
 
-          <ButtonMin />
-          <ButtonMax />
-          <ButtonClose />
+          <WindowControls />
         </div>
       </div>
 

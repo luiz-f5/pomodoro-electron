@@ -1,29 +1,59 @@
 import { Sequelize } from 'sequelize'
-import { S3Client } from '@aws-sdk/client-s3'
-import fs from 'fs'
 import pg from 'pg'
-const client = new S3Client({ region: 'us-east-1' })
+import fs from 'fs'
+import path from 'path'
+import { app } from 'electron'
+let _sequelize = null
+let _available = false
 
-const database = process.env.DATABASE_PG
-const username = process.env.USER_PG
-const password = process.env.PASS_PG
-const host = process.env.HOST_PG
-const port = process.env.PORT_PG
-const pem = process.env.PEM
+export async function initDatabase() {
+  const database = import.meta.env.VITE_DATABASE_PG
+  const username = import.meta.env.VITE_USER_PG
+  const password = import.meta.env.VITE_PASS_PG
+  const host = import.meta.env.VITE_HOST_PG
+  const port = import.meta.env.VITE_PORT_PG
+  const pem = app.isPackaged
+    ? path.join(process.resourcesPath, 'pem/global-bundle.pem')
+    : path.join(__dirname, '../../src/pem/global-bundle.pem')
 
-const sequelize = new Sequelize(database, username, password, {
-  host: host,
-  port: Number(port),
-  dialect: 'postgres',
-  dialectModule: pg,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnathorized: false,
-      ca: fs.readFileSync(pem).toString()
-    }
-  },
-  logging: false
-})
+  if (!database || !username || !host) {
+    console.log('[DB] Missing credentials — falling back to localStorage')
+    return false
+  }
 
-export default sequelize
+  const sslOptions = { require: true, rejectUnauthorized: false }
+  if (fs.existsSync(pem)) {
+    sslOptions.ca = fs.readFileSync(pem).toString()
+  } else {
+    console.log('[DB] PEM not found at', pem, '— connecting with SSL but without CA cert')
+  }
+
+  const options = {
+    host,
+    port: Number(port) || 5432,
+    dialect: 'postgres',
+    dialectModule: pg,
+    logging: false,
+    dialectOptions: { ssl: sslOptions }
+  }
+
+  try {
+    _sequelize = new Sequelize(database, username, password, options)
+    await _sequelize.authenticate()
+    _available = true
+    console.log('[DB] Connected to PostgreSQL')
+    return true
+  } catch (err) {
+    console.warn('[DB] Connection failed — falling back to localStorage:', err.message)
+    _sequelize = null
+    return false
+  }
+}
+
+export function getSequelize() {
+  return _sequelize
+}
+
+export function isDbAvailable() {
+  return _available
+}
