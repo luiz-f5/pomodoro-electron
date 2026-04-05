@@ -1,8 +1,3 @@
-/* ============================================================
-   CALENDAR — Liquid Glass, segue os temas do app
-   ============================================================ */
-
-/* ── Overlay ─────────────────────────────────────────────── */
 .cal-overlay {
   position: fixed;
   inset: 0;
@@ -26,7 +21,6 @@
   }
 }
 
-/* ── Panel ───────────────────────────────────────────────── */
 .cal-panel {
   width: 320px;
   max-height: calc(100vh - 72px);
@@ -55,7 +49,6 @@
   display: none;
 }
 
-/* Shine arc no topo */
 .cal-panel::before {
   content: '';
   display: block;
@@ -83,7 +76,6 @@
   }
 }
 
-/* ── Header ──────────────────────────────────────────────── */
 .cal-header {
   display: flex;
   align-items: center;
@@ -170,7 +162,6 @@
   transform: scale(0.9);
 }
 
-/* ── Weekdays ────────────────────────────────────────────── */
 .cal-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -189,7 +180,6 @@
   padding: 4px 0;
 }
 
-/* ── Grid ────────────────────────────────────────────────── */
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -226,7 +216,6 @@
   animation: cal-slide-right 0.28s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* ── Cells ───────────────────────────────────────────────── */
 .cal-cell {
   aspect-ratio: 1;
   display: flex;
@@ -265,7 +254,6 @@
   transition: color 0.16s ease;
 }
 
-/* Today */
 .cal-day.is-today {
   background: color-mix(in srgb, var(--color-accent, #e94560) 16%, transparent);
   border-color: color-mix(in srgb, var(--color-accent, #e94560) 40%, transparent);
@@ -277,7 +265,6 @@
   font-weight: 700;
 }
 
-/* Selected */
 .cal-day.is-selected {
   background: color-mix(in srgb, var(--color-accent, #e94560) 24%, transparent);
   border-color: color-mix(in srgb, var(--color-accent, #e94560) 55%, transparent);
@@ -291,7 +278,6 @@
   font-weight: 700;
 }
 
-/* Has note dot */
 .cal-dot {
   width: 4px;
   height: 4px;
@@ -302,14 +288,12 @@
   bottom: 4px;
 }
 
-/* ── Divider ─────────────────────────────────────────────── */
 .cal-editor,
 .cal-legend {
   border-top: 0.5px solid var(--glass-border, rgba(255, 255, 255, 0.1));
   margin: 0 12px;
 }
 
-/* ── Editor ──────────────────────────────────────────────── */
 .cal-editor {
   padding: 14px 4px 16px;
   display: flex;
@@ -460,7 +444,6 @@
   transform: scale(0.96);
 }
 
-/* ── Legend (lista de notas do mês) ──────────────────────── */
 .cal-legend {
   padding: 12px 4px 16px;
   display: flex;
@@ -509,7 +492,6 @@
   -webkit-box-orient: vertical;
 }
 
-/* ── Ajustes temas claros (light, ice) ───────────────────── */
 .app.light .cal-textarea,
 .app.ice .cal-textarea {
   color: var(--color-text);

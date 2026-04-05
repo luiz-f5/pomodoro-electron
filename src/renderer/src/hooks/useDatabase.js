@@ -57,13 +57,11 @@ function lsUpdateSession(id, patch) {
 }
 
 async function tryDb(ipcCall, fallback) {
-    try {
-      const res = await ipcCall()
-      if (res?.ok && res.data !== null) return res.data
-    } catch {
-      // IPC indisponível (ex: janela sem contexto Electron)
-    }
-    return fallback()
+  try {
+    const res = await ipcCall()
+    if (res?.ok && res.data !== null) return res.data
+  } catch {}
+  return fallback()
 }
 
 export function useDatabase() {
@@ -78,9 +76,7 @@ export function useDatabase() {
 
     try {
       await window.dbAPI?.timestamp.create({ type: 'pomodoro', completed: true })
-    } catch {
-      // silencioso
-    }
+    } catch {}
 
     return lsGetHistory()
   }, [])
@@ -155,9 +151,7 @@ export function useCalendarNotes() {
         lsSaveCalendarNotes(res.data)
         return res.data
       }
-    } catch {
-      // IPC indisponível
-    }
+    } catch {}
     return lsGetCalendarNotes()
   }, [])
 
@@ -173,9 +167,7 @@ export function useCalendarNotes() {
       } else {
         await window.dbAPI?.calendar.delete(date)
       }
-    } catch {
-      // silencioso
-    }
+    } catch {}
 
     return lsGetCalendarNotes()
   }, [])
