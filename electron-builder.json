@@ -20,14 +20,16 @@
       "from": "assets/",
       "to": "assets",
       "filter": ["**/*"]
+    },
+    {
+      "from": "src/pem",
+      "to": "pem"
     }
   ],
   "mac": {
     "icon": "build/icon.icns",
     "category": "public.app-category.productivity",
-    "target": [
-      { "target": "dmg", "arch": ["universal"] }
-    ]
+    "target": [{ "target": "dmg", "arch": ["universal"] }]
   },
   "dmg": {
     "contents": [
@@ -40,11 +42,11 @@
     "target": [
       {
         "target": "nsis",
-        "arch": ["x64", "arm64"]
+        "arch": ["x64"]
       },
       {
         "target": "portable",
-        "arch": ["x64", "arm64"]
+        "arch": ["x64"]
       }
     ]
   },
@@ -63,8 +65,8 @@
     "category": "Utility",
     "maintainer": "Luiz Henrique <lhrds0113@proton.me>",
     "target": [
-      { "target": "AppImage", "arch": ["x64", "arm64"] },
-      { "target": "deb", "arch": ["x64", "arm64"] }
+      { "target": "AppImage", "arch": ["x64"] },
+      { "target": "deb", "arch": ["x64"] }
     ]
   }
 }
