@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import '../assets/css//Calendar.css'
+import '../assets/css/Calendar.css'
 import { useCalendarNotes } from '../hooks/useDatabase'
 
 const MONTHS = [

@@ -38,7 +38,6 @@ function Window() {
         </div>
 
         <div className="window-controls">
-          {/* Botão History integrado ao estilo do main.css */}
           <button
             className={`btn-history ${histOpen ? 'active' : ''}`}
             onClick={() => {
@@ -71,7 +70,6 @@ function Window() {
             </svg>
           </button>
 
-          {/* Botão Calendar integrado ao estilo do main.css */}
           <button
             className={`btn-calendar ${calOpen ? 'active' : ''}`}
             onClick={() => {
@@ -103,7 +101,6 @@ function Window() {
         </div>
       </div>
 
-      {/* Renderização Condicional - Passando a prop onClose obrigatória */}
       {calOpen && <Calendar onClose={() => setCalOpen(false)} />}
       {histOpen && <History onClose={() => setHistOpen(false)} />}
     </>

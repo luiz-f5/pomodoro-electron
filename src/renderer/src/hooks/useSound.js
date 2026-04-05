@@ -3,7 +3,6 @@ import notificationSound from '../assets/sounds/notification.wav'
 
 const FREESOUND_API = 'https://freesound.org/apiv2/sounds'
 
-// ID do FreeSound para cada evento
 const SOUND_IDS = {
   FOCUS_START: 376193,
   FOCUS_TO_BREAK: 376193,
@@ -20,9 +19,6 @@ async function fetchPreviewUrl(soundId, token) {
   return data.previews['preview-hq-mp3'] || data.previews['preview-lq-mp3']
 }
 
-// Eventos que não interrompem o som atual (tocam por cima)
-const OVERLAY = new Set(['TICK'])
-
 function stopAudio(audio) {
   if (!audio) return
   audio.pause()
@@ -37,7 +33,7 @@ function playAudio(audio, onEnd) {
 
 export function useSound() {
   const cache = useRef({})
-  const current = useRef(null) // áudio principal em reprodução
+  const current = useRef(null)
 
   async function preload(token) {
     if (!token) return
@@ -66,13 +62,6 @@ export function useSound() {
   const play = useCallback((event) => {
     const audio = cache.current[event]
 
-    // TICK toca por cima sem interromper o som principal
-    if (OVERLAY.has(event)) {
-      if (audio) playAudio(audio, () => {})
-      return
-    }
-
-    // Para o som principal antes de tocar outro
     stopAudio(current.current)
     current.current = null
 
@@ -84,7 +73,6 @@ export function useSound() {
       return
     }
 
-    // Fallback: som padrão local
     const fallback = new Audio(notificationSound)
     fallback.play().catch((err) => console.error('playSound fallback error:', err))
     current.current = fallback

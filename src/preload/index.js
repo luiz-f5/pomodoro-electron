@@ -51,26 +51,6 @@ const apiSettings = {
   set: (settings) => ipcRenderer.invoke('set-settings', settings)
 }
 
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('widgetAPI', apiPomodoro)
-    contextBridge.exposeInMainWorld('notifyAPI', apiNotify)
-    contextBridge.exposeInMainWorld('menuAPI', apiMenu)
-    contextBridge.exposeInMainWorld('themeAPI', apiTheme)
-    contextBridge.exposeInMainWorld('settingsAPI', apiSettings)
-    contextBridge.exposeInMainWorld('configAPI', apiConfig)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  window.widgetAPI = apiPomodoro
-  window.notifyAPI = apiNotify
-  window.menuAPI = apiMenu
-  window.themeAPI = apiTheme
-  window.settingsAPI = apiSettings
-  window.configAPI = apiConfig
-}
-
 const apiSound = {
   getCustomSound: () => ipcRenderer.invoke('get-custom-sound')
 }
@@ -112,9 +92,25 @@ const apiDb = {
 }
 
 if (process.contextIsolated) {
-  contextBridge.exposeInMainWorld('soundAPI', apiSound)
-  contextBridge.exposeInMainWorld('dbAPI', apiDb)
+  try {
+    contextBridge.exposeInMainWorld('widgetAPI', apiPomodoro)
+    contextBridge.exposeInMainWorld('notifyAPI', apiNotify)
+    contextBridge.exposeInMainWorld('menuAPI', apiMenu)
+    contextBridge.exposeInMainWorld('themeAPI', apiTheme)
+    contextBridge.exposeInMainWorld('settingsAPI', apiSettings)
+    contextBridge.exposeInMainWorld('configAPI', apiConfig)
+    contextBridge.exposeInMainWorld('soundAPI', apiSound)
+    contextBridge.exposeInMainWorld('dbAPI', apiDb)
+  } catch (error) {
+    console.error(error)
+  }
 } else {
+  window.widgetAPI = apiPomodoro
+  window.notifyAPI = apiNotify
+  window.menuAPI = apiMenu
+  window.themeAPI = apiTheme
+  window.settingsAPI = apiSettings
+  window.configAPI = apiConfig
   window.soundAPI = apiSound
   window.dbAPI = apiDb
 }

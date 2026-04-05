@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import '../assets/css//History.css'
+import '../assets/css/History.css'
 import PropTypes from 'prop-types'
 import { useTimer } from '../context/TimerContext'
 
@@ -128,7 +128,6 @@ export default function History({ onClose }) {
             )}
             {allEntries.map(([key, count]) => {
               const [y, m, d] = key.split('-').map(Number)
-              const date = new Date(y, m - 1, d)
               return (
                 <div key={key} className="hist-row">
                   <div className="hist-row-date">
