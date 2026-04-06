@@ -139,16 +139,55 @@ app.whenReady().then(async () => {
     tray = new Tray(trayIcon)
 
     const contextMenu = Menu.buildFromTemplate([
-      { label: 'Minimizar', click: () => mainWindow?.minimize() },
       {
-        label: 'Maximizar/Restaurar',
-        click: () => {
-          if (!mainWindow) return
-          mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
-        }
+        label: 'Pomodoro',
+        submenu: [
+          { label: 'Minimizar', click: () => mainWindow?.minimize() },
+          {
+            label: 'Maximizar/Restaurar',
+            click: () => {
+              if (!mainWindow) return
+              mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
+            }
+          },
+          { type: 'separator' },
+          { label: 'Fechar', click: () => mainWindow.close() }
+        ]
       },
-      { type: 'separator' },
-      { label: 'Fechar', click: () => app.quit() }
+      {
+        label: 'Configurações',
+        submenu: [
+          { label: 'Minimizar', click: () => secondaryWindow?.minimize() },
+          {
+            label: 'Maximizar/Restaurar',
+            click: () => {
+              if (!secondaryWindow) return
+              secondaryWindow.isMaximized()
+                ? secondaryWindow.unmaximize()
+                : secondaryWindow.maximize()
+            }
+          },
+          { type: 'separator' },
+          { label: 'Fechar', click: () => secondaryWindow.close() }
+        ]
+      },
+      {
+        label: 'Ações',
+        submenu: [
+          {
+            label: 'Começar',
+            click: () => {}
+          },
+          {
+            label: 'Parar',
+            click: () => {}
+          },
+          {
+            label: 'Cancelar',
+            click: () => {}
+          }
+        ]
+      }
     ])
 
     tray.setContextMenu(contextMenu)
@@ -265,7 +304,7 @@ ipcMain.on('show-notification', (event, { title, body }) => {
   const win = BrowserWindow.getFocusedWindow()
   const isFocused = win?.isFocused()
 
-  if (!isFocused) {
+  if (isFocused) {
     new Notification({
       title,
       body,
@@ -316,8 +355,7 @@ async function loadCustomSound() {
 
     const buffer = await audioRes.arrayBuffer()
     fs.writeFileSync(tmpFile, Buffer.from(buffer))
-    customSoundPath = tmpFile
-    console.log('Custom sound loaded', tmpFile)
+    console.log('FreeSound API connected :)')
   } catch (err) {
     console.error('Failed to load custom sound:', err.message)
     customSoundPath = null
