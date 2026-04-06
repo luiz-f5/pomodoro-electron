@@ -270,14 +270,47 @@ let customSoundPath = null
 const settingsDir = path.join(os.homedir(), '.config', 'pomodoro-electron')
 const settingsFile = path.join(settingsDir, 'settings.json')
 
+const DEFAULT_SETTINGS = {
+  freesoundApiKey: '',
+  debugMode: false,
+  theme: 'pomodoro',
+  minutes: "25:00:5:00",
+  loops: 4,
+  soundIds: {
+    FOCUS_START: "376193",
+    FOCUS_TO_BREAK: "376193",
+    BREAK_TO_FOCUS: "633159",
+    SESSION_COMPLETE: "634089",
+    SESSION_STOP: "263802",
+    SESSION_CANCEL: "672085"
+  }
+}
+
 function loadSettings() {
   try {
-    if (!fs.existsSync(settingsFile)) return {}
+    if (!fs.existsSync(settingsFile)) {
+      if (!fs.existsSync(settingsDir)) fs.mkdirSync(settingsDir, { recursive: true })
+      fs.writeFileSync(settingsFile, JSON.stringify(DEFAULT_SETTINGS, null, 2))
+      return { ...DEFAULT_SETTINGS }
+    }
+
     const raw = fs.readFileSync(settingsFile, 'utf-8')
-    return JSON.parse(raw)
+    const parsed = JSON.parse(raw)
+
+    // Merge defaults with existing values (deep merge for soundIds)
+    const merged = {
+      ...DEFAULT_SETTINGS,
+      ...parsed,
+      soundIds: { ...DEFAULT_SETTINGS.soundIds, ...(parsed.soundIds || {}) }
+    }
+
+    // Persist merged version back to disk (auto‑migration)
+    fs.writeFileSync(settingsFile, JSON.stringify(merged, null, 2))
+
+    return merged
   } catch (err) {
     console.error('Failed to load settings:', err.message)
-    return {}
+    return { ...DEFAULT_SETTINGS }
   }
 }
 
@@ -358,7 +391,12 @@ app.on('window-all-closed', () => {
 function saveSettings(newSettings) {
   try {
     const current = loadSettings()
-    const merged = { ...current, ...newSettings }
+    const merged = {
+      ...DEFAULT_SETTINGS,
+      ...current,
+      ...newSettings,
+      soundIds: { ...DEFAULT_SETTINGS.soundIds, ...(newSettings.soundIds || {}) }
+    }
 
     if (!fs.existsSync(settingsDir)) fs.mkdirSync(settingsDir, { recursive: true })
     fs.writeFileSync(settingsFile, JSON.stringify(merged, null, 2))
