@@ -3,16 +3,6 @@ import notificationSound from '../assets/sounds/notification.wav'
 
 const FREESOUND_API = 'https://freesound.org/apiv2/sounds'
 
-// ID do FreeSound para cada evento
-const SOUND_IDS = {
-  FOCUS_START: 376193,
-  FOCUS_TO_BREAK: 376193,
-  BREAK_TO_FOCUS: 633159,
-  SESSION_COMPLETE: 634089,
-  SESSION_STOP: 263802,
-  SESSION_CANCEL: 672085
-}
-
 async function fetchPreviewUrl(soundId, token) {
   const res = await fetch(`${FREESOUND_API}/${soundId}/?token=${token}`)
   if (!res.ok) throw new Error(`FreeSound ${res.status}`)
@@ -37,11 +27,11 @@ function playAudio(audio, onEnd) {
 
 export function useSound() {
   const cache = useRef({})
-  const current = useRef(null) // áudio principal em reprodução
+  const current = useRef(null)
 
-  async function preload(token) {
+  async function preload(token, soundIds = {}) {
     if (!token) return
-    for (const [event, id] of Object.entries(SOUND_IDS)) {
+    for (const [event, id] of Object.entries(soundIds)) {
       try {
         const url = await fetchPreviewUrl(id, token)
         cache.current[event] = new Audio(url)
@@ -52,13 +42,20 @@ export function useSound() {
   }
 
   useEffect(() => {
-    window.configAPI?.getFreesoundToken().then((token) => preload(token))
+    Promise.all([
+      window.configAPI?.getFreesoundToken(),
+      window.settingsAPI?.get()
+    ]).then(([token, settings]) => {
+      preload(token, settings.soundIds || {})
+    })
   }, [])
 
   useEffect(() => {
     if (!window.themeAPI?.onSettings) return
     const cleanup = window.themeAPI.onSettings((data) => {
-      if (data.freesoundApiKey) preload(data.freesoundApiKey)
+      if (data.freesoundApiKey) {
+        preload(data.freesoundApiKey, data.soundIds || {})
+      }
     })
     return cleanup
   }, [])

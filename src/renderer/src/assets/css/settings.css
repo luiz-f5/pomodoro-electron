@@ -555,3 +555,10 @@
   transform: rotate(180deg);
   opacity: 1;
 }
+
+.settings-config__input:disabled {
+  opacity: 0.45;
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}

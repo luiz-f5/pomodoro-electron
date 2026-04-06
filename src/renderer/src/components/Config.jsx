@@ -5,6 +5,13 @@ import Times from './Selects/Times'
 import Themes from './Selects/Themes'
 import WindowControls from './WindowControls'
 
+// Helper: extract numeric ID from FreeSound URL or return raw string
+function normalizeSoundId(value) {
+  if (!value) return ""
+  const match = value.match(/(\d+)(?:\/?$)/)
+  return match ? match[1] : value
+}
+
 function Config() {
   const {
     theme: ctxTheme,
@@ -21,6 +28,7 @@ function Config() {
   const [apiKey, setApiKey] = useState('')
   const [debugMode, setDebugMode] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [localSoundIds, setLocalSoundIds] = useState({})
 
   useEffect(() => {
     window.settingsAPI?.get().then((settings) => {
@@ -29,6 +37,7 @@ function Config() {
       if (settings.theme) setLocalTheme(settings.theme)
       if (settings.minutes) setLocalMinutes(settings.minutes)
       if (settings.loops) setLocalLoops(Number(settings.loops))
+      if (settings.soundIds) setLocalSoundIds(settings.soundIds)
     })
   }, [])
 
@@ -38,7 +47,8 @@ function Config() {
       debugMode,
       theme: localTheme,
       minutes: localMinutes,
-      loops: localLoops
+      loops: localLoops,
+      soundIds: localSoundIds
     }
     setTheme(localTheme)
     setMinutes(localMinutes)
@@ -97,6 +107,31 @@ function Config() {
             </p>
           </section>
 
+          <section className="settings-config__section">
+            <span className="settings-config__section-label">Sons</span>
+            {Object.entries(localSoundIds).map(([event, id]) => (
+              <div key={event} className="settings-config__group">
+                <label>{event}</label>
+                <input
+                  type="text"
+                  className="settings-config__input"
+                  value={id}
+                  disabled={!apiKey} // disables if no API key
+                  onChange={(e) =>
+                    setLocalSoundIds({
+                      ...localSoundIds,
+                      [event]: normalizeSoundId(e.target.value)
+                    })
+                  }
+                />
+              </div>
+            ))}
+            {!apiKey && (
+              <p className="settings-config__hint">
+                Adicione uma API key para editar os IDs de som
+              </p>
+            )}
+          </section>
           <section className="settings-config__section">
             <span className="settings-config__section-label">Avançado</span>
             <label className="settings-config__checkbox-row">
