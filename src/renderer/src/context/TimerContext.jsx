@@ -252,6 +252,7 @@ export function TimerProvider({ children }) {
     setRemaining(focus)
     setTotal(focus)
     setMessage('Sessão cancelada.')
+    notify?.send('Pomodoro', 'A sessão de foco foi cancelada')
     playSound('SESSION_CANCEL')
     if (sessionIdRef.current) {
       db.cancelSession(sessionIdRef.current)

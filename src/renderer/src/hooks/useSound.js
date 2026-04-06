@@ -9,7 +9,7 @@ const SOUND_IDS = {
   BREAK_TO_FOCUS: 633159,
   SESSION_COMPLETE: 634089,
   SESSION_STOP: 263802,
-  SESSION_CANCEL: 672085
+  SESSION_CANCEL: 762111
 }
 
 async function fetchPreviewUrl(soundId, token) {
