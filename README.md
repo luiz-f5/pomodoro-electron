@@ -101,19 +101,19 @@ cd pomodoro-electron
 ### 2. Instalar dependências
 
 ```bash
-pnpm install
+bun install
 ```
 
 ### 3. Executar em modo de desenvolvimento
 
 ```bash
-pnpm dev
+bun dev
 ```
 
 ### 4. Pré-visualizar o build
 
 ```bash
-pnpm start
+bun start
 ```
 
 ---
@@ -122,19 +122,19 @@ pnpm start
 
 ```bash
 # Build para a plataforma atual
-pnpm build
+bun build
 
 # Empacotamento sem instalador (diretório)
-pnpm build:unpack
+bun build:unpack
 
 # Windows (NSIS installer + portable)
-pnpm build:win
+bun build:win
 
 # macOS (DMG universal)
-pnpm build:mac
+bun build:mac
 
 # Linux (AppImage + .deb)
-pnpm build:linux
+bun build:linux
 ```
 
 Os artefatos são gerados na pasta `dist/`.

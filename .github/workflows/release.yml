@@ -20,31 +20,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: 22
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Cache pnpm modules
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
+          bun-version: latest
 
       - name: Install dependencies
-        run: pnpm install
+        run: bun install
 
       - name: Reassemble SSL Certificate
         shell: bash
@@ -53,7 +35,7 @@ jobs:
           echo "${{ secrets.SSL_P_00 }}${{ secrets.SSL_P_01 }}${{ secrets.SSL_P_02 }}${{ secrets.SSL_P_03 }}${{ secrets.SSL_P_04 }}${{ secrets.SSL_P_05 }}${{ secrets.SSL_P_06 }}${{ secrets.SSL_P_07 }}${{ secrets.SSL_P_08 }}" > src/pem/global-bundle.pem
 
       - name: Build app
-        run: pnpm run build
+        run: bun run build
         env:
           VITE_DATABASE_PG: ${{ secrets.VITE_DATABASE_PG }}
           VITE_USER_PG: ${{ secrets.VITE_USER_PG }}
@@ -63,6 +45,6 @@ jobs:
           VITE_FREESOUND_TOKEN: ${{ secrets.VITE_FREESOUND_TOKEN }}
 
       - name: Build & Publish
-        run: pnpm exec electron-builder ${{ matrix.platform }} --publish always
+        run: bunx electron-builder ${{ matrix.platform }} --publish always
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
